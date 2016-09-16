@@ -1,0 +1,964 @@
+/**
+ * 
+ */
+$(function() {
+	mainFrame = generateMainFrame();
+	$(mainFrame).appendTo("#content");
+	$('.menu-item').on(
+			"click",
+			function() {
+				$('#workspace').empty();
+				$('.content-caption').empty();
+				//$('.content-caption').text($(this).next('.uppercase').context.innerText);
+				var netxtObj = $(this).children('.uppercase');
+				$('.content-caption').text($(netxtObj[0]).text());
+				contentBuild = getContent($(this).attr('id'));
+				$(contentBuild).appendTo('#workspace');
+
+			});
+});
+
+function prepareData(prData) {
+	return encodeURIComponent(JSON.stringify(prData))
+}
+
+function generateMainFrame() {
+	mainFrameContainer = document.createElement('div');
+	$(mainFrameContainer).addClass('main-frame').addClass('fl-row');
+
+	leftMenuCol = document.createElement('div');
+	$(leftMenuCol).css('min-height','996px').addClass('fl-col').addClass('gray-blue-bg').appendTo(
+			$(mainFrameContainer));
+
+	rightContent = document.createElement('div');
+	$(rightContent).addClass('fl-col').attr('id', 'rightContent').addClass(
+			'gray-bg').css('width', '780px').appendTo($(mainFrameContainer));
+	rightCaption = document.createElement('div');
+	$(rightCaption).addClass('content-caption').appendTo($(rightContent));
+	workspace = document.createElement('div');
+	$(workspace).addClass("fl-col").attr('id', 'workspace').appendTo(
+			$(rightContent));
+	mainLogo = generateMainLogo();
+	$(mainLogo).appendTo($(leftMenuCol));
+
+	menuItems = generateMenuItems();
+	$(menuItems).appendTo($(leftMenuCol));
+
+	return mainFrameContainer;
+}
+
+function generateMenuItems() {
+	menuItemsContainer = document.createElement('div');
+	$(menuItemsContainer).addClass('fl-col');
+	ordersItem = generateMenuItem("заказы", "orders", "../img/b_orders.png",
+			"../img/b_orders_a.png");
+	$(ordersItem).appendTo($(menuItemsContainer));
+	usersItem = generateMenuItem("Пользователи", "users", "../img/b_users.png",
+			"../img/b_users_a.png");
+	$(usersItem).appendTo($(menuItemsContainer));
+	productsItem = generateMenuItem("товары", "products",
+			"../img/b_products.png", "../img/b_products_a.png");
+	$(productsItem).appendTo($(menuItemsContainer));
+	categoriesItem = generateMenuItem("категории", "categories",
+			"../img/b_categories.png", "../img/b_categories_a.png");
+	$(categoriesItem).appendTo($(menuItemsContainer));
+
+	return menuItemsContainer;
+}
+
+function generateMenuItem(caption, name, picbase, picover) {
+	var itemContainer = document.createElement('div');
+	var itemPicture = document.createElement('img');
+
+	$(itemContainer).addClass('fl-row').addClass('fl-vcenter').addClass(
+			'menu-item').attr('id', name);
+	itemPicArea = document.createElement('div');
+	$(itemPicArea).addClass('menu-item-pic-area').appendTo($(itemContainer))
+	$(itemPicture).attr('src', picbase).appendTo($(itemPicArea));
+	var itemText = document.createElement('div');
+	$(itemText).addClass('uppercase').addClass('gray-green-text').css(
+			'font-size', '14px').css('margin-left', '10px').text(caption)
+			.appendTo($(itemContainer));
+	$(itemContainer).hover(function() {
+		$(itemPicture).attr('src', picover);
+		$(itemText).removeClass('gray-green-text').addClass('white-text');
+		$(this).addClass('darg-gray-blue-bg');
+	}, function() {
+		$(itemPicture).attr('src', picbase);
+		$(itemText).removeClass('white-text').addClass('gray-green-text');
+		$(this).removeClass('darg-gray-blue-bg');
+	});
+	return itemContainer;
+}
+
+function generateMainLogo() {
+	mainLogo = document.createElement('div');
+	$(mainLogo).addClass('green-bg').addClass('main-logo-area').addClass(
+			'white-text').addClass('fl-row').addClass('fl-vcenter').css(
+			'cursor', 'pointer').click(function() {
+		window.location = 'index.php';
+	});
+	logoText = document.createElement('div');
+	$(logoText).appendTo($(mainLogo)).addClass('fl-col').addClass('fl-vcenter')
+			.css('font-family', 'Supermolot').css('width', '100%');
+	
+	super_text = document.createElement('span');
+	$(super_text).appendTo($(logoText)).text("super").addClass('uppercase')
+			.css("font-size", "33px").css("line-height", "33px");
+	shop_text = document.createElement('span');
+	$(shop_text).appendTo($(logoText)).text("shop").addClass('uppercase')
+			.addClass('bold').css("font-size", "41px").css("line-height",
+					"33px");
+	return mainLogo;
+}
+
+function buildTableRow() {
+	var tableRowContainer = document.createElement('div');
+	var purpleLine = document.createElement('div');
+	$(purpleLine).addClass('purple-line').appendTo($(tableRowContainer));
+	$(tableRowContainer).addClass('fl-row').addClass('fl-vcenter').addClass(
+			'table-row').addClass('white-bg').hover(
+			function() {
+				$(this).children('.purple-line').css('background-color',
+						'#8e44ad');
+				$(this).css('background-color', '#f6f8fc');
+			},
+			function() {
+				$(this).children('.purple-line').css('background-color',
+						'transparent');
+				$(this).css('background-color', '#fff');
+			});
+	return tableRowContainer;
+}
+
+function buildUsersTable(msg) {
+	table = document.createElement('div');
+	$(table).addClass('fl-col').addClass('white-bg').addClass('table');
+	tableCaption = document.createElement('div');
+	$(tableCaption).addClass('col-caption').appendTo($(table));
+	col1 = document.createElement('div');
+	col1text = document.createElement('span');
+	$(col1text).text('Имя').css('margin-left', '23px').appendTo($(col1));
+	$(col1).css('width', '146px').appendTo($(tableCaption));
+	col2 = document.createElement('div');
+	$(col2).addClass('fl-row').addClass('fl-hcenter').css('width', '220px')
+			.appendTo($(tableCaption));
+	col2text = document.createElement('span');
+	$(col2text).text('E-mail').appendTo($(col2));
+	col3 = document.createElement('div');
+	$(col3).addClass('fl-row').addClass('fl-hcenter').css('width', '200px')
+			.appendTo($(tableCaption));
+	col3text = document.createElement('span');
+	$(col3text).text('Телефон').appendTo($(col3));
+	if (msg != null) {
+		if (msg.content != null) {
+			$.each(msg.content, function(i, item) {
+				var tableRow = buildTableRow();
+				var tableRowUserName = document.createElement('div');
+				$(tableRowUserName).css('margin-left', '25px').addClass(
+						'row-item-name').css('width', '118px').text(item.userData.name)
+						.appendTo($(tableRow));
+				var tableRowEmailBox = document.createElement('div');
+				$(tableRowEmailBox).addClass('fl-row')
+						.addClass('fl-vcenter').addClass('fl-hcenter').css(
+								'width', '220px').appendTo($(tableRow));
+				var tableEmail = document.createElement('span');
+				$(tableEmail).text( item.login ).css(
+						'font-size', '16px').css('color', '#636363').appendTo(
+						$(tableRowEmailBox));
+
+				var tableRowTelBox = document.createElement('div');
+				$(tableRowTelBox).addClass('fl-row').addClass(
+						'fl-hcenter').css('width', '200px').appendTo($(tableRow));
+				var tableTel = document.createElement('div');
+				$(tableTel).css('color','#636363').css('font-size','16px')
+							.text(item.userData.tel).appendTo($(tableRowTelBox));
+
+				$(tableRow).appendTo($(table));
+
+				var tableRowProdView = document.createElement('span');
+				$(tableRowProdView).addClass('row-item-view').css('margin-left', '60px').text('просмотр')
+					.css('cursor','pointer').appendTo($(tableRow));
+
+			});
+		}
+	}
+
+	lastRow = document.createElement('div');
+	$(lastRow).css('margin', '1px 1px 1px 1px').css('height', '25px').addClass(
+			'white-bg').appendTo($(table));
+	
+	return table;
+}
+
+function buildProdTable(msg) {
+	table = document.createElement('div');
+	$(table).addClass('fl-col').addClass('white-bg').addClass('table').css('order', '2');
+	tableCaption = document.createElement('div');
+	$(tableCaption).addClass('col-caption').appendTo($(table));
+	col1 = document.createElement('div');
+	col1text = document.createElement('span');
+	$(col1text).text('Название товара').css('margin-left', '25px').appendTo(
+			$(col1));
+	$(col1).css('width', '269px').appendTo($(tableCaption));
+	col2 = document.createElement('div');
+	$(col2).addClass('fl-row').addClass('fl-hcenter').css('width', '200px')
+			.appendTo($(tableCaption));
+	col2text = document.createElement('span');
+	$(col2text).text('Стоимость').appendTo($(col2));
+	if (msg != null) {
+		if (msg.content != null) {
+			$.each(msg.content, function(i, item) {
+				var tableRow = buildTableRow();
+				var tableRowProdName = document.createElement('div');
+				$(tableRowProdName).css('margin-left', '25px').addClass(
+						'row-item-name').css('width', '240px').text(item.name)
+						.appendTo($(tableRow));
+				var tableRowProdCostBox = document.createElement('div');
+				$(tableRowProdCostBox).addClass('fl-row')
+						.addClass('fl-vcenter').addClass('fl-hcenter').css(
+								'width', '200px').appendTo($(tableRow));
+				var tableRowProdCost = document.createElement('span');
+				if(item.details!=null && item.details.currentCost!=null) {
+					$(tableRowProdCost).text(item.details.currentCost + "руб.").css(
+						'font-size', '16px').css('color', '#636363').appendTo(
+						$(tableRowProdCostBox));
+				}
+				var tableRowProdCountBox = document.createElement('div');
+				$(tableRowProdCountBox).addClass('fl-row').addClass(
+						'fl-hcenter').css('width', '120px').css('margin-left',
+						'50px').appendTo($(tableRow));
+
+				$(tableRow).appendTo($(table));
+
+				var tableRowProdView = document.createElement('span');
+				$(tableRowProdView).addClass('row-item-view').css('margin-left', '10px').text('просмотр')
+					.css('cursor','pointer')
+						.on("click", function() {
+							$("#workspace").empty();
+							productInfo = buildProductInfo(item.id);
+							$(productInfo).appendTo($("#workspace"));
+						})
+						.appendTo($(tableRow));
+
+			});
+		}
+	}
+	lastRow = document.createElement('div');
+	$(lastRow).css('margin', '1px 1px 1px 1px').css('height', '25px').addClass(
+			'white-bg').appendTo($(table));
+	return table;
+}
+
+function generateInputField(caption, name, text) {
+	var inputFieldContainer = document.createElement('div');
+	var inputFieldCaption = document.createElement('label');
+	if(text) {
+		var inputField = document.createElement('textarea');
+	} else {
+		var inputField = document.createElement('input');
+	}	
+	if(password==true) {
+		$(inputField).attr('type','password');
+	}
+	$(inputFieldCaption).attr('for',name).text(caption).appendTo($(inputFieldContainer));
+	$(inputField).attr('id',name).appendTo($(inputFieldContainer));
+	$(inputFieldContainer).addClass('layout-input');
+	return inputFieldContainer;	
+}
+
+function generateRadioInput(data) {
+	var radioBlock = document.createElement('div');
+	$(radioBlock).addClass('fl-col');
+	$.each(data.content, function(i, item) {
+		var radioButton = document.createElement('div');
+		$(radioButton).addClass('radio-block').attr('id',data.name + "_" + item.value).appendTo($(radioBlock));
+		var radioInput = document.createElement('input');
+		$(radioInput).attr('name',data.name).attr("value",item.value).attr('type','radio')
+					.attr('id',item.value).appendTo($(radioButton));
+		//if(data.checked) $(radioInput).attr('checked','checked');
+		var radioLabel = document.createElement('label');
+		$(radioLabel).attr('for',item.value).text(item.text).css('color','#0d0b0b')
+				.css('font-size','18px').css('font-weight','lighter').appendTo($(radioButton));
+		
+	});
+	return radioBlock;
+}
+
+function generateFotoBlock(image, id) {
+	var fotoContainer = document.createElement('div');
+	$(fotoContainer).addClass('fl-col').addClass('fl-vcenter').css('margin-right','20px');
+	
+	var fotoDiv = document.createElement('div');
+	$(fotoDiv).addClass('foto-div').appendTo($(fotoContainer));
+	if(image!=null) {
+		$(fotoDiv).css("background-position","center")
+			.css('background-image','url("../img/products/'+ id + "/" + image +'")');
+		
+		var fotoChange = document.createElement('a');
+		var fotoDelete = document.createElement('a');
+		$(fotoChange).text("Изменить").css('color','#099d48').attr('href','#')
+				.css('color','16px').css('font-weight','lighter')
+				.appendTo($(fotoContainer));
+		$(fotoDelete).text("Удалить").css('color','#ad0000').attr('href','#')
+				.css('color','16px').css('font-weight','lighter')
+			.on('click', function (e) {
+				e.preventDefault();
+				var prData = {
+					target: 'fotos',
+					operation: 'remove',
+					id: id,
+					image: image
+				}
+				var result = false;
+				$.ajax({
+					type : 'POST',
+					url : 'crud.php',
+					async: false,
+					dataType : 'json',
+					data : 'data='+ prepareData(prData),
+					success : function(msg) {
+						if (msg.result == "success") {
+							result = true;
+						} else {
+							alert("Ошибка!");
+						}
+					}
+				});
+				if(result) $(this).parent().hide(200);
+
+			})
+				.appendTo($(fotoContainer));
+	} else {
+		$(fotoContainer).css('order',1);
+		var notLoad = document.createElement('span');
+		$(notLoad).text("не загружено").css('color','#9d9d9d')
+				.css('color','16px').css('font-weight','lighter')
+				.appendTo($(fotoDiv));
+		var fotoLoad = document.createElement('a');
+		var fotoInput = document.createElement('input');
+		$(fotoInput).css("width","50px").css('visibility','hidden').attr('type','file').attr('id','openfile')
+					.attr('accept',".jpg, .png, .jpeg, .gif").attr('multiple','')
+					.change(function() {
+						var file = this.files;
+						var formData = new FormData();
+						$.each(file, function(i, item) {
+							formData.append('file[]', item);
+						});
+						formData.append('productId', id);
+					    $.ajax({
+					    	url : 'upload.php',
+					    	type : 'POST',
+					    	data : formData,
+					    	dataType : 'json',
+					    	processData: false,
+					    	contentType: false,
+					    	success : function(msg) {
+
+					    		if(msg.result == null) {
+					    			$.each(msg, function(i, item) {
+										var productImage = generateFotoBlock(item.image, id);
+										$(productImage).appendTo(prodFotoContent);
+									})
+
+					    		} else {
+					    			alert("ошибка!" + msg.message);
+					    		}
+					    		
+					    	}
+					    })
+					})
+					.appendTo($(fotoContainer));
+		$(fotoLoad).text("Загрузить").css('color','#8e44ad').attr('href','#')
+				.css('color','16px').css('font-weight','lighter')
+				.on('click', function(e){
+					e.preventDefault();
+					$("#openfile").trigger('click');
+				})
+				.appendTo($(fotoContainer));
+	}	
+	return fotoContainer;			
+}
+
+function buildProductInfo(productId) {
+	$('.content-caption').empty();
+	$('.content-caption').text("просмотр товара");	
+	var infoData;
+	$.ajax({
+		type : 'POST',
+		async: false,
+		url : 'content.php',
+		dataType : 'json',
+		data : 'product=' + productId,
+		success: function(msg) {
+			infoData = msg;			
+		}
+	});
+	
+	container = document.createElement('div');
+	$(container).addClass('fl-col');
+	
+	prodInfo = document.createElement('div');
+	$(prodInfo).addClass('fl-col').addClass('table').css('margin-bottom','16px').appendTo($(container));
+		prodInfoCaption = document.createElement('div');
+		$(prodInfoCaption).addClass('fl-vcenter').addClass('col-caption').appendTo($(prodInfo));
+		prodInfoCaptionText = document.createElement('div');
+		$(prodInfoCaptionText).css('margin-left','22px')
+				.text('информация о товаре').appendTo($(prodInfoCaption));
+		
+		prodInfoContent = document.createElement('div');
+		$(prodInfoContent).addClass('col-content').appendTo($(prodInfo));
+			infoCol1 = document.createElement('div');
+			$(infoCol1).addClass('fl-col').css('width','350px').appendTo($(prodInfoContent));
+			infoCol2 = document.createElement('div');
+			$(infoCol2).addClass('fl-col').css('width','350px').appendTo($(prodInfoContent));
+				productName = generateInputField("Название товара",'productName',false);				
+				$(productName).appendTo($(infoCol1));
+				$(productName).children("input").val(infoData.name);
+				productDesc = generateInputField("Описание товара","productDesc",true);
+				$(productDesc).appendTo($(infoCol1));
+				if(infoData.details != null && infoData.details.desc != null) {
+					$(productDesc).children("textarea").val(infoData.details.desc);
+				}
+				
+				productSpec = document.createElement('div');
+				$(productSpec).addClass("fl-col").css('margin-left','70px').appendTo($(infoCol2));
+				productBadgeCaption = document.createElement('div');
+				$(productBadgeCaption).text("Бэйджик").css('color','#999999').css('font-size','14px')
+								.css('font-weight','lighter').appendTo($(productSpec));
+				var radioData = {
+						name:"badge",
+						content: [{
+							value: "none",
+							text: "Отсутсвует"
+						}, {
+							value: "new",
+							text: "NEW"
+						}, {
+							value: "hot",
+							text: "HOT"
+						}, {
+							value: "sale",
+							text: "SALE"
+						}]
+				};
+				radio = generateRadioInput(radioData);
+				$(radio).appendTo($(productSpec));
+				if (infoData.details==null || infoData.details.badge==null || infoData.details.badge=="none") {
+					$(radio).children("#" + radioData.name + "_none").children("input").attr("checked","checked");					
+				} else if(infoData.details.badge=="new" ||
+						  infoData.details.badge=="hot" || 
+						  infoData.details.badge=="sale") {
+					$(radio).children("#" + radioData.name + "_" + infoData.details.badge).children("input").attr("checked","checked");					
+				}
+					
+				
+	
+	prodFoto = document.createElement('div');
+		$(prodFoto).addClass('fl-col').addClass('table').css('margin-bottom','16px').appendTo($(container));
+			prodFotoCaption = document.createElement('div');
+			$(prodFotoCaption).addClass('col-caption').addClass('fl-vcenter').appendTo($(prodFoto));
+			prodFotoCaptionText = document.createElement('div');
+			$(prodFotoCaptionText).css('margin-left','22px')
+					.addClass('col-caption').text('фотографии товара').appendTo($(prodFotoCaption));
+			
+			prodFotoContent = document.createElement('div');
+			$(prodFotoContent).addClass('col-content').css('justify-content','flex-start').css('flex-flow','row wrap').addClass('fl-space').appendTo($(prodFoto));
+			
+			var productImage = generateFotoBlock(null,infoData.id);
+			$(productImage).css('order','1').appendTo(prodFotoContent);
+			
+			if(infoData.fotos != null && infoData.fotos.length>0) {
+				$.each(infoData.fotos, function(i, item){
+					var productImage = generateFotoBlock(item, infoData.id, i);
+					$(productImage).appendTo(prodFotoContent);
+				}) 
+			}
+			
+	prodVars = document.createElement('div');
+		$(prodVars).addClass('fl-col').addClass('table').css('margin-bottom','16px').appendTo($(container));
+			prodVarsCaption = document.createElement('div');
+			$(prodVarsCaption).addClass('col-caption').addClass('fl-vcenter').appendTo($(prodVars));
+			prodVarsCaptionText = document.createElement('div');
+			$(prodVarsCaptionText).css('margin-left','22px')
+					.addClass('col-caption').text('вариации товара').appendTo($(prodVarsCaption));
+				
+			prodVarsContent = document.createElement('div');
+			$(prodVarsContent).addClass('col-content').css('padding-top','6px').appendTo($(prodVars));
+			var prodVarsContentWrap = document.createElement('div');
+			$(prodVarsContentWrap).addClass('fl-col').appendTo($(prodVarsContent));
+			var addProductVar = document.createElement('div');
+			$(addProductVar).addClass('fl-row').css('margin-top','9px').appendTo($(prodVarsContentWrap));
+				var addProductVarInput = generateInputField("Добавить вариацию:", "addVars", false);
+				var addProductVarSubmit = document.createElement('a');
+				$(addProductVarSubmit).css('color','#8e44ad').text("Добавить").attr('href','#').appendTo($(addProductVarInput))
+					.on('click', function(e) {
+						e.preventDefault();
+						var prData = {
+							target : "vars",
+							operation : "create",
+							id: productId,
+							name: $('#addVars').val()
+						};
+						//alert(prData.name);
+						$.ajax({
+						 	type : 'POST',
+							url : 'crud.php',
+							dataType : 'json',
+							async: false,
+							data : 'data='+ prepareData(prData),
+							success : function(msg) {
+								if (msg.result == "success") {
+									//alert("Выполнено!");
+									var varBlock = generateVarsBlock(msg.key, prData.name, productId);
+									$(varBlock).appendTo($("#productVariants"));
+								}
+							}
+						});
+						$('#addVars').val('').focus();
+					});
+			$(addProductVarInput).css('width','350px').appendTo($(prodVarsContentWrap));
+
+			productVariants = document.createElement('div');
+			$(productVariants).addClass('fl-col').attr('id','productVariants').appendTo($(prodVarsContentWrap));
+			if(infoData.details != null && infoData.details.vars != null) {
+				$.each(infoData.details.vars, function(i, item) {
+					var varBlock = generateVarsBlock(i, item, productId);
+					$(varBlock).appendTo($(productVariants));
+			});
+			}
+
+	prodCost = document.createElement('div');
+	$(prodCost).addClass('fl-col').addClass('table').css('margin-bottom','16px').appendTo($(container));
+		prodCostCaption = document.createElement('div');
+		$(prodCostCaption).addClass('col-caption').addClass('fl-vcenter').appendTo($(prodCost));
+		prodCostCaptionText = document.createElement('div');
+			$(prodCostCaptionText).css('margin-left','22px')
+			.addClass('col-caption').text('цена товара').appendTo($(prodCostCaption));
+		prodCostContent = document.createElement('div');
+		$(prodCostContent).addClass('col-content').css('padding-top','6px').appendTo($(prodCost));
+
+		prodCostCurrent = generateInputField("Текущая цена:","currentCost", false);
+
+		prodCostAction = generateInputField("Цена по акции:","actionCost", false);
+		$(prodCostCurrent).appendTo($(prodCostContent));
+		$(prodCostAction).appendTo($(prodCostContent));
+		if(infoData.details != null && infoData.details.currentCost != null) {
+			$(prodCostCurrent).children("input").val(infoData.details.currentCost);
+		}
+		if(infoData.details != null && infoData.details.actionCost != null) {
+			$(prodCostAction).children("input").val(infoData.details.actionCost);
+		}
+
+	prodPromo = document.createElement('div');
+	$(prodPromo).appendTo($(prodCostContent));
+	prodPromoCaption = document.createElement('span');
+	$(prodPromoCaption).css('margin-left','22px')
+		.addClass('col-caption').text('Промоакция').appendTo($(prodCostCaption));
+	var promoRadio = {
+		name:"promo",
+		content: [{
+			value: "no",
+			text: "Нет"
+		}, {
+			value: "yes",
+			text: "Да"
+		}]
+	};
+	promoRadioInput = generateRadioInput(promoRadio);
+	$(promoRadioInput).appendTo($(prodPromo));
+	if (infoData.details==null || infoData.details.promo==null || infoData.details.promo=="no") {
+		$(promoRadioInput).children("#" + promoRadio.name + "_no").children("input").attr("checked","checked");
+	} else if(infoData.details.promo=="yes") {
+		$(promoRadioInput).children("#" + promoRadio.name + "_" + infoData.details.promo).children("input").attr("checked","checked");
+	}
+
+	saveDeleteBox = document.createElement('div');
+	$(saveDeleteBox).appendTo($(container)).addClass('fl-row').css('align-self','flex-end');
+	saveSubmit = document.createElement('a');
+	$(saveSubmit).text('Сохранить изменения').css('font-size','18px').css('font-weight','lighter')
+		.css('color','#02873a').css('margin-right','30px').attr('href','#')
+		.on('click', function(e) {
+			e.preventDefault();
+
+			var prData = {
+				target : "product",
+				operation : "update",
+				id : productId,
+				name : $("#productName").val(),
+				description :  $("#productDesc").val(),
+				currentCost : $("#currentCost").val(),
+				actionCost : $("#actionCost").val(),
+				badge : $("input[name=" + radioData.name + "]:checked").val(),
+				promo : $("input[name=" + promoRadio.name + "]:checked").val()
+			}
+			$.ajax({
+				type : 'POST',
+				url : 'crud.php',
+				dataType : 'json',
+				async: false,
+				data : 'data='+ prepareData(prData),
+				success : function(msg) {
+					if (msg.result == "success") {
+						//alert("Выполнено!!!");
+						gets.getCategoryTable(infoData.category);
+					} else {
+						alert("Ошибка!!!");
+					}
+				}
+			})
+		})
+		.appendTo($(saveDeleteBox));
+		deleteSubmit = document.createElement('a');
+		$(deleteSubmit).text('Удалить').css('font-size','18px').css('font-weight','lighter')
+			.css('color','#ad0000').css('align-self','flex-end').css('margin-right','30px').attr('href','#')
+			.on('click', function(e) {
+				e.preventDefault();
+				var prData = {
+					target : "product",
+					operation : "delete",
+					id : productId
+				}
+				$.ajax({
+					type : 'POST',
+					url : 'crud.php',
+					dataType : 'json',
+					async: false,
+					data : 'data='+ prepareData(prData),
+					success : function(msg) {
+						if (msg.result == "success") {
+							alert("Выполнено!!!");
+							$("#workspace").empty();
+						} else {
+							alert("Ошибка!!!");
+						}
+					}
+				})
+			})
+			.appendTo($(saveDeleteBox));
+	return container;
+}
+
+
+
+function generateVarsBlock(key, value, productId) {
+	var productVariant = document.createElement('div');
+	$(productVariant).addClass('fl-row').addClass('fl-vcenter').css('margin-top','9px').appendTo($(productVariants));
+	var productVarName = document.createElement('span');
+	$(productVarName).text(value).css('min-width','322px').css('padding-left','5px').css('padding-top','5px').css('height','25px')
+		.css('border','1px solid #dee1e2').appendTo($(productVariant));
+	productVarDelete = document.createElement('a');
+	$(productVarDelete).css('color','#ad0000').css('font-size','14px').attr('href','#')
+		.css('font-weight','lighter').css('margin-left','10px').text('Удалить').appendTo($(productVariant))
+		.on('click', function (e) {
+			e.preventDefault();
+			var prData = {
+				target : "vars",
+				operation : "delete",
+				id : productId,
+				key : key
+			};
+			var ok = false;
+			$.ajax({
+				type : 'POST',
+				url : 'crud.php',
+				dataType : 'json',
+				async : false,
+				data : 'data=' + prepareData(prData),
+				success : function(msg) {
+					if (msg.result == "success") {
+						ok = true;
+					}
+				}
+			});
+			if(ok) {
+				$(this).parent().hide(200);
+			}
+		});
+}
+
+function buildCatTable(msg) {
+
+	table = document.createElement('div');
+	$(table).addClass('fl-col').addClass('white-bg').addClass('table').css('order', '1');
+	tableCaption = document.createElement('div');
+	$(tableCaption).addClass('col-caption').appendTo($(table));
+	col1 = document.createElement('div');
+	col1text = document.createElement('span');
+	$(col1text).text('Название категории').css('margin-left', '25px').appendTo(
+		$(col1));
+	$(col1).css('width', '269px').appendTo($(tableCaption));
+	col2 = document.createElement('div');
+	$(col2).addClass('fl-row').addClass('fl-hcenter').css('width', '200px')
+		.appendTo($(tableCaption));
+	col2text = document.createElement('span');
+	$(col2text).text('Количество товаров').appendTo($(col2));
+	if (msg != null) {
+		if (msg.content != null) {
+			$.each(msg.content, function (i, item) {
+				var tableRow = buildTableRow();
+				var tableRowImg = document.createElement('div');
+				$(tableRowImg).css('background-image', 'url("../img/catalog.png"')
+					.css('width', '21px').css('height', '18px')
+					.css('margin-left', '10px').appendTo($(tableRow));
+				var tableRowCatName = document.createElement('div');
+				$(tableRowCatName).css('margin-left', '8px')
+					.addClass('row-item-name').css('width', '234px')
+					.text(item.name).appendTo($(tableRow));
+				var tableRowCatCountBox = document.createElement('div');
+				$(tableRowCatCountBox).addClass('fl-row').addClass('fl-vcenter')
+					.addClass('fl-hcenter').css('width', '200px').appendTo($(tableRow));
+				var tableRowCatCount = document.createElement('span');
+
+				$(tableRowCatCount).text(item.count).css('font-size', '16px')
+					.css('color', '#636363').appendTo($(tableRowCatCountBox));
+				var tableRowCatDelBox = document.createElement('div');
+				$(tableRowCatDelBox).addClass('fl-row').addClass('fl-hcenter')
+					.css('width', '120px').css('margin-left', '50px').appendTo($(tableRow));
+				if (item.count == 0) {
+					var tableRowCatDel = document.createElement('span');
+					$(tableRowCatDel).text('удалить').css('color', '#cb0000')
+						.css('font-size', '14px').css('font-weight', 'bolder')
+						.css('text-decoration', 'underline').css('cursor', 'pointer')
+						.on('click', function () {
+							var prData = {
+								target: "category",
+								operation: "delete",
+								id: item.id
+							};
+							var ok = false;
+							$.ajax({
+								type: 'POST',
+								url: 'crud.php',
+								dataType: 'json',
+								data: 'data=' + prepareData(prData),
+								success: function (msg) {
+									if (msg.result == "success") {
+										$('#workspace').empty();
+										contentBuild = getContent("categories");
+										$(contentBuild).appendTo('#workspace');
+										// ok=true;
+									}
+								}
+							});
+							// if(ok) {
+							// $(this).hide(200);
+							// }
+						}).appendTo($(tableRowCatDelBox));
+				}
+				var tableRowCatView = document.createElement('span');
+				$(tableRowCatView).css('color', '#8e44ad').css('text-decoration', 'underline')
+					.css('font-size', '14px').css('font-weight', 'bolder').css('cursor', 'pointer')
+					.click(function () {
+						gets.getCategoryTable(item.id)
+					})
+					.css('margin-left', '10px').text('просмотр').appendTo($(tableRow));
+				$(tableRow).appendTo($(table));
+			});
+		}
+	}
+	lastRow = document.createElement('div');
+	$(lastRow).css('margin', '1px 1px 1px 1px').css('height', '25px').addClass(
+		'white-bg').appendTo($(table));
+
+	return table;
+}
+
+function getCurrentCategoryField(catname, catid) {
+	categoryBox = document.createElement('div');
+	$(categoryBox).addClass('fl-row').addClass('fl-vcenter').css('height','58px').css('margin-left','18px');
+	categoryBoxTextBox = document.createElement('div');
+	$(categoryBoxTextBox).addClass('fl-row').addClass('fl-vcenter').appendTo($(categoryBox));
+	categoryBoxText = document.createElement('span');
+	$(categoryBoxText).text("Текущая категория:").addClass('dark-blue-text')
+			.css('font-size', '16px').css('font-weight', 'bolder')
+			.appendTo($(categoryBoxTextBox));
+
+	categoryInput =  document.createElement('input');
+	categoryRenameSubmit = document.createElement('a');
+	$(categoryInput).css('padding-left','9px').css('height','32px').css('border','1px solid #dee1e2')
+			.css('color','#0d0b0b').css('font-weight','lighter').css('font-size','16px')
+			.change(function() {
+				$(this).attr('changed','true');
+			})
+			.css('width','231px').val(catname).attr('id','catname').css('margin-left','7px')
+			.attr('catid',catid).appendTo($(categoryBox));
+	$(categoryRenameSubmit).attr('href', '#').text("переименовать")
+			.css('color', '#02873a').css('margin-left','10px')
+			.on('click',function() {
+				//alert($("#catname").attr('changed')); //TODO проверка на пустое поле
+				if($("#catname").attr('changed')=='true') {
+					var prData = {
+							target : "category",
+							operation : "update",
+							id : catid,
+							newname: $(categoryInput).val()
+							};
+					var ok = false;
+					$.ajax({
+								type : 'POST',
+								url : 'crud.php',
+								dataType : 'json',
+								data : 'data='+ prepareData(prData),
+								success : function(msg) {
+										if (msg.result == "success") {										
+											alert("Выполнено!");
+										}
+									}
+					});
+					
+				}
+			} )
+			.appendTo($(categoryBox));
+	return categoryBox;
+}
+
+function addField(caption, inputId, submitText, doSomething) {
+	addContainer = document.createElement('div');
+	addRow1 = document.createElement('div');
+	addRow2 = document.createElement('div');
+	addCaption = document.createElement('span');
+	addInput = document.createElement('input');
+	addSubmit = document.createElement('a');
+	$(addRow1).addClass('fl-row').addClass('fl-vcenter').appendTo($(addContainer));
+	$(addRow2).addClass('fl-row').css('justify-content','flex-end')
+			.css('margin-top','8px').appendTo($(addContainer));
+	$(addCaption).text(caption).addClass('dark-blue-text').css('font-size','16px')
+			.css('font-weight','bolder').appendTo($(addRow1));
+	$(addInput).css('width', '232px').css('padding-left', '7px')
+			.css('height', '32px').css('border', '1px solid #ecf0f1')
+			.css('margin-left', '8px').css('color', '#0d0b0b').css('font-size','16px')
+			.css('font-weight', 'lighter').attr('id', inputId)
+			.appendTo($(addRow1));
+	$(addSubmit).attr('href', '#').text(submitText)
+			.css('color', '#02873a').appendTo($(addRow2));
+	$(addContainer).addClass('fl-col').css('margin-top', '29px')
+			.css('align-self', 'flex-end').css('margin-right', '24px');
+	$(addSubmit).on('click', doSomething);
+	return addContainer;
+	
+}
+
+
+
+var gets = {
+	getCategoryTable : function(catId) {
+			$.ajax({
+				type : 'POST',
+				url : 'content.php',
+				dataType : 'json',
+				data : 'products&category=' + catId,
+				success: function(msg) {
+					$('#workspace').empty();
+					$('.content-caption').empty();
+					$('.content-caption').text('ТОВАРЫ');
+					categoryField = getCurrentCategoryField(msg.catname,catId);
+					containerTable = buildProdTable(msg);
+					addProductField = getAddProductField();
+					$(categoryField).appendTo($('#workspace'));
+					$(containerTable).appendTo($("#workspace"));
+					$(addProductField).css('order','2').appendTo($("#workspace"));
+				}
+			})
+	}
+}
+
+
+
+var submits = {
+		addProductSubmit : function() {
+			var prData = {
+					target : "product",
+					operation : "create",
+					name : $("#addProductName").val(),
+					category : $("#catname").attr('catid')
+			};
+			$.ajax({
+				type : 'POST',
+				url : 'crud.php',
+				dataType : 'json',
+				data : 'data=' + prepareData(prData),
+				success : function(msg) {
+					if (msg.result == "success") {
+						$('#workspace').empty();
+						contentBuild = buildProductInfo(msg.productId);
+						$(contentBuild).appendTo('#workspace');
+					}
+				}
+			})			
+		} ,
+		
+		addCategorySubmit : function() {
+			var prData = {
+					target : "category",
+					operation : "create",
+					name : $("#addCategoryName").val()
+				};
+				$.ajax({
+					type : 'POST',
+					url : 'crud.php',
+					dataType : 'json',
+					data : 'data=' + prepareData(prData),
+					success : function(msg) {
+						if (msg.result == "success") {
+							$('#workspace').empty();
+							contentBuild = getContent("categories");
+							$(contentBuild).appendTo('#workspace');
+
+						}
+					}
+				});
+		}
+}
+function getAddProductField() {
+	addProductContainer = addField("Добавить товар:", "addProductName", "Добавить товар", submits.addProductSubmit );
+	$(addProductContainer).css('order','2');
+	return addProductContainer;
+}
+function getAddCategoryField() {
+	addCategoryContainer = addField("Добавить категорию:", "addCategoryName", "Добавить категорию", submits.addCategorySubmit );
+	$(addCategoryContainer).css('order','2');
+	return addCategoryContainer;
+}
+
+function getContent(choise) {
+	container = document.createElement('div');
+	$(container).addClass('fl-col');	
+	$.ajax({
+		type : 'POST',
+		url : 'content.php',
+		dataType : 'json',
+		data : choise,
+		success : function(msg) {
+			switch (choise) {
+			case 'orders':
+				//TODO buildOrdersData - after orders
+				break;
+			case 'users':
+				//TODO buildOrdersData - after orders
+				//TODO редактирование профиля завершить 
+				containerTable = buildUsersTable(msg);
+				$(containerTable).appendTo($(container));
+				break;
+			case 'products':
+				containerTable = buildProdTable(msg);
+				$(containerTable).appendTo($(container));
+				break;
+			case 'categories':
+				containerTable = buildCatTable(msg);
+				addCategory = getAddCategoryField();				
+				$(containerTable).appendTo($(container));
+				$(addCategory).appendTo($(container));
+				break;
+			}
+		}
+	});	
+	return container;
+}
+
+
+
+//CRUD ТОВАРОВ!!!!!!!!!!!!
+
+
+
