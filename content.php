@@ -21,15 +21,40 @@ if(isset($_POST['mainpromo'])) {
         $out["firstLine"] = $exname[0];
         $secondLine = "";
         for($i=1;$i<count($exname);$i++) {
-            $secondLine .= $exname[$i];
+            $secondLine .= $exname[$i] . " ";
         }
-        $out["secondLine"] = $secondLine;
+        $out["secondLine"] = trim($secondLine);
         $data->details = json_decode($data->details);
-        $out["desc"] = $data->details->desc;
+        $data->images = getProductImages($data->id);
+        $out["product"] = $data;
         echo json_encode($out);
 
     } else {
         echo json_encode(array("result"=>"empty"));
+    }
+    return;
+}
+
+if(isset($_POST['promoprods'])) {
+    $query = $conn->query("SELECT * FROM webdip.products WHERE JSON_EXTRACT(details, \"$.promo\")=\"yes\" ORDER BY RAND() LIMIT 0,3;");
+    $out = array();
+    while($row  = $query->fetch_object()) {
+        $row->details = json_decode($row->details);
+        $exname = explode(" ",$row->name);
+        $row->firstLine = $exname[0];
+        $secondLine = "";
+        for($i=1;$i<count($exname);$i++) {
+            $secondLine .= $exname[$i] . " ";
+        }
+        $row->secondLine = trim($secondLine);
+        $row->images = getProductImages($row->id);
+        $out[] = $row;
+    }
+
+    if(count($out) == 0) {
+        echo json_encode(array("result"=>"zero"));
+    } else  {
+        echo json_encode(array("result"=>$out));
     }
     return;
 }

@@ -6,9 +6,8 @@ var popProdsData;
 var catProdsData;
 var categoriesData;
 var productsInCategory;
-
+var userData;
 var patternEmail = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
-
 
 Number.prototype.formatMoney = function(c, d, t){
     var n = this,
@@ -20,94 +19,57 @@ Number.prototype.formatMoney = function(c, d, t){
         j = (j = i.length) > 3 ? j % 3 : 0;
     return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "") + "руб.";
 };
-
-function fetchCatProdsData(catId) {
-    catProdsData = $.ajax({
-        type: 'POST',
-        url: 'content.php',
-        dataType: 'json',
-        data: 'samecategory=' + catId,
-        async: false
-    }).responseJSON;
-    catProdsData.offset = 0;
-
-
+images = {
+    newBadge : function () {
+        var imgContainer = document.createElement('div');
+        var img = document.createElement("img");
+        $(img).attr('src','./img/corner_new.png').appendTo($(imgContainer));
+        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
+        return imgContainer;
+    },
+    hotBadge : function () {
+        var imgContainer = document.createElement('div');
+        var img = document.createElement("img");
+        $(img).attr('src','./img/corner_hot.png').appendTo($(imgContainer));
+        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
+        return imgContainer;
+    },
+    saleBadge : function () {
+        var imgContainer = document.createElement('div');
+        var img = document.createElement("img");
+        $(img).attr('src','./img/corner_sale.png').appendTo($(imgContainer));
+        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
+        return imgContainer;
+    }
 }
+
 
 $(function () {
     //login
+    $.getScript('utils.js');
+    $.getScript('ready-generators.js');
     activateLoginMenu();
-    //---
     //fetch required data
-    categoriesData = $.ajax({
-        type: 'POST',
-        url: 'content.php',
-        dataType: 'json',
-        data: 'filledcategories',
-        async: false
-    }).responseJSON;
-
-    newProdsData = $.ajax({
-        type: 'POST',
-        url: 'content.php',
-        dataType: 'json',
-        data: 'newprods',
-        async: false
-    }).responseJSON;
-    newProdsData.offset = 0;
-
-    popProdsData = $.ajax({
-        type: 'POST',
-        url: 'content.php',
-        dataType: 'json',
-        data: 'popprods',
-        async: false
-    }).responseJSON;
-    popProdsData.offset = 0;
-
-
+    initialFetch();
     promoScreen = generateMainPromoScreen();
     navBar = generateNavigationBar();
-    $(promoScreen).appendTo($('header'));
+    $(promoScreen).addClass('shadow').appendTo($('header'));
     $(navBar).appendTo($(promoScreen));
-
-
-
     newProducts = generateProductsContainer("newProducts", "Новые товары", 2, newProdsData);
-
-    $(newProducts).css("margin-top", "-76px")
-        .appendTo($("#content"));
+    $(newProducts).addClass('shadow').css("margin-top", "-76px").appendTo($("#content"));
     promoProducts = generatePromoProductsContainer();
-    $(promoProducts).css("margin-top", "20px").appendTo($("#content"));
-
+    $(promoProducts).addClass('shadow').css("margin-top", "20px").appendTo($("#content"));
     popProducts = generateProductsContainer("popProducts", "Популярные товары", 1, popProdsData);
-    $(popProducts).css("margin-top", "20px").appendTo($("#content"));
-
+    $(popProducts).addClass('shadow').css("margin-top", "20px").appendTo($("#content"));
     aboutShop = generateAboutShop();
-    $(aboutShop).css("margin-top", "20px").appendTo($("#content"));
-
+    $(aboutShop).addClass('shadow').css("margin-top", "20px").appendTo($("#content"));
     footer = generateFooter();
-    $(footer).css("margin-top", "20px").css("margin-bottom", "62px").appendTo($("footer"));
-
+    $(footer).addClass('shadow').css("margin-top", "20px").css("margin-bottom", "62px").appendTo($("footer"));
+    //lean modal init screens
     show_usermenu();
-
     showRegistration();
     showAccount();
-
 });
-
-function prepareFlat() {
-    $('header').empty();
-    $("#content").empty();
-    navBar = generateNavigationBar();
-    $(navBar).appendTo($("header"));
-    show_usermenu();
-}
-
-
-function prepareData(prData) {
-    return encodeURIComponent(JSON.stringify(prData))
-}
 
 function activateLoginMenu() {
     $('#loginform').submit(function () {
@@ -122,23 +84,9 @@ function activateLoginMenu() {
             data: 'login=' + prepareData(login),
             success: function () {
                 show_usermenu();
-                //generateSignMenu();
             }
         });
         return false;
-    });
-}
-
-function logout() {
-    $.ajax({
-        type: 'POST',
-        url: 'login.php',
-        dataType: 'text',
-        data: 'logout',
-        success: function () {
-            show_usermenu();
-            //generateSignMenu();
-        }
     });
 }
 
@@ -181,7 +129,23 @@ function show_usermenu() {
                 .appendTo($('#signbar'));
             if (msg.status == "loggedin") {
                 $(loginButtonText).text(msg.user);
-                $(loginButton).attr('id', 'accmodaltrigger').attr('pos', 'absolute').attr('href', '#accmodal');
+                $(loginButton).attr('id', 'accmodaltrigger').attr('pos', 'absolute').attr('href', '#accmodal')
+                    .on('click', function () {
+                        userData = $.ajax({
+                            url: 'login.php',
+                            async: false,
+                            method: 'POST',
+                            dataType: 'json',
+                            data: 'getAccount'
+                        }).responseJSON;
+                        $('#accfio').val(userData.userData.name);
+                        $('#acctel').val(userData.userData.tel);
+                        $('#accemail').val(userData.login);
+                        $('#acccity').val(userData.userData.city);
+                        $('#accstreet').val(userData.userData.street);
+                        $('#acchome').val(userData.userData.home);
+                        $('#accflat').val(userData.userData.flat);
+                    });
                 $(registerButton).text("Выход").attr('id', '').attr('href', '#')
                     .on('click', function () {
                         $.ajax({
@@ -203,71 +167,7 @@ function show_usermenu() {
     });
 }
 
-function activateLeanModal() {
-    $('#modaltrigger').leanModal({top: 175, overlay: 0.45, closeButton: ".hidemodal"});
-    $('#regmodaltrigger').leanModal({top: 175, overlay: 0.45, closeButton: ".hidemodal"});
-    $('#accmodaltrigger').leanModal({top: 175, overlay: 0.45, closeButton: ".hidemodal"});
-}
-
-function generateMainPromoScreen() {   // Генерация начальной страницы  - с элементами товара промо акции
-    mainPromo = document.createElement('div');
-    $(mainPromo).addClass("main-promo")
-        .addClass("fl-col")
-        .addClass("fl-vcenter");
-
-    $.ajax({	// Для динамической генерации
-        type: 'POST',
-        url: 'content.php',
-        dataType: 'json',
-        data: 'mainpromo',
-        success: function (msg) {
-            promoProductArea = document.createElement('div');
-            firstLine = document.createElement('div');
-            secondLine = document.createElement('div');
-            desc = document.createElement('div');
-            button = document.createElement('div');
-            $(promoProductArea).addClass("fl-col")
-                .css("align-self", "flex-start")
-                .addClass("promo-product").css('width','600px')
-                .css('height','400px')
-                .css('overflow','hidden');;
-            $(firstLine).text(msg.firstLine)
-                .addClass("uppercase")
-                .addClass("bold")
-                .addClass("italic")
-                .css("font-size", "72px")
-                .css("line-height", "65px")
-                .css("letter-spacing", "-2px")
-                .appendTo($(promoProductArea));
-            $(secondLine).text(msg.secondLine)
-                .addClass("uppercase")
-                .addClass("light")
-                .addClass("italic")
-                .css("font-size", "72px")
-                .css("line-height", "65px")
-                .css("letter-spacing", "-2px")
-                .appendTo($(promoProductArea));
-            $(desc).text(msg.desc)
-                .addClass("white-text")
-                .css("font-size", "16px")
-                .css("line-height", "17px")
-                .css("margin-top",'30px')
-                .appendTo($(promoProductArea));
-            $(button).text("Посмотреть +")
-                .addClass("bt-promo-view")
-                .on('click', function () {			//TODO Идём смотреть промо товар
-                    alert("clicked");
-                })
-                .appendTo($(promoProductArea));
-            $(promoProductArea).appendTo($(mainPromo));
-
-        }
-    });
-    return mainPromo;
-}
-
 function generateNavigationBar() {		//Генерация панели навигации //TODO доделать функцию выделения выбранного раздела, доделать анимацию при увеличении количества пунктов категорий
-
     navBar = document.createElement('div');
     $(navBar).attr('id', "navbar")
         .addClass('fl-row')
@@ -289,31 +189,53 @@ function generateNavigationBar() {		//Генерация панели навиг
     return navBar;
 }
 
-function generateSignMenu() {
-    signBar = document.createElement('div');
-    $(signBar).addClass('sign-bar-area')
-        .addClass('white-bg')
-        .addClass('fl-row')
-        .addClass("fl-vcenter")
-        .attr('id', 'signbar');
-    //TODO ajax sign menu elements
-
-    return signBar;
-}
-
 function generateCartMenu() {
     cartBar = document.createElement('div');
     $(cartBar).addClass('cart-bar-area')
-        .addClass('dark-blue-bg');
+        .addClass('dark-blue-bg white-text').addClass('fl-row fl-vcenter fl-hcenter');
+    cartBarInfoBox = document.createElement('div');
+    $(cartBarInfoBox).appendTo(cartBar).addClass('fl-col');
+        cartBarSumm = document.createElement('nobr');
+        $(cartBarSumm).css('font-size','20px').css('font-weight','bolder')
+            .text(12345..formatMoney(0,"."," ")).appendTo(cartBarInfoBox);
+        cartBarCount = generateCartCount(45);
+        $(cartBarCount).appendTo(cartBarInfoBox).css('color','#999999')
+            .css('font-size','12px');
+    cartImg = document.createElement('img');
+    $(cartImg).attr("src",'./img/cart.png').css('opacity','0.2').appendTo(cartBar);
+
     return cartBar;
 }
 
-function generateCategories() {
+function generateCartCount(count) {
+    var cartCount = document.createElement('nobr');
+    var suf = count % 10;
+    switch (suf) {
+        case 0:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            $(cartCount).text(count + " предметов");
+            break;
+        case 1:
+            $(cartCount).text(count + " предмет");
+            break;
+        case 2:
+        case 3:
+        case 4:
+            $(cartCount).text(count + " предмета");
+            break;
+    }
+    return cartCount;
+}
+
+function generateCategories() { //TODO доделать прокрутку
     var categoriesLine = document.createElement('div');
     $(categoriesLine).addClass("fl-row")
         .addClass("cat-area")
         .addClass("white-bg");
-
     $.each(categoriesData, function(i, item) {
         var catElement = document.createElement('div');
         var catElementText = document.createElement('span');
@@ -336,45 +258,10 @@ function generateCategories() {
     return categoriesLine;
 }
 
-function generateMainLogo() {
-    mainLogo = document.createElement('div');
-    $(mainLogo).appendTo($(navBar))
-        .addClass('magenta-bg')
-        .addClass('main-logo-area')
-        .addClass('white-text')
-        .addClass('fl-row')
-        .addClass('fl-vcenter')
-        .css('cursor', 'pointer')
-        .click(function () {
-            window.location = 'index.php';
-        });
-    logoText = document.createElement('div');
-    $(logoText).appendTo($(mainLogo))
-        .addClass('fl-col')
-        .addClass('fl-vcenter')
-        .css('width', '100%');
-    //server side?
-    super_text = document.createElement('span');
-    $(super_text).appendTo($(logoText))
-        .text("super")
-        .addClass('uppercase')
-        .css("font-size", "33px")
-        .css("line-height", "33px");
-    shop_text = document.createElement('span');
-    $(shop_text).appendTo($(logoText))
-        .text("shop")
-        .addClass('uppercase')
-        .addClass('bold')
-        .css("font-size", "41px")
-        .css("line-height", "33px");
-    return mainLogo;
-}
-
-function generateCategoryFlat(categoryId) { //TODO можно сделать кэширование при попадании в одну и туже категорию
+function generateCategoryFlat(categoryId) { //TODO доделать перелистывание - неправильный подсчет можно сделать кэширование при попадании в одну и туже категорию
     var container = document.createElement('div');
     var caption = document.createElement('div');
     var catBody = document.createElement('div');
-
     productsInCategory = $.ajax({
         type: 'POST',
         url: 'content.php',
@@ -383,23 +270,18 @@ function generateCategoryFlat(categoryId) { //TODO можно сделать к�
         async: false
     }).responseJSON;
     productsInCategory.offset = 0;
-
     $(container).addClass('fl-col').addClass('products-container');
         $(caption).addClass('flat-caption').appendTo($(container));
         var captionText = document.createElement('h1');
         $(captionText).text(categoriesData[categoryId].name).appendTo($(caption));
         var countComment = document.createElement('div');
         $(countComment).addClass('category-progress').appendTo($(caption));
-
-
-    $(catBody).addClass('fl-col').addClass('white-bg').attr('id','catBody').css('margin-top','20px').appendTo($(container));
-
+    $(catBody).addClass('shadow').addClass('fl-col').addClass('white-bg').attr('id','catBody').css('margin-top','20px').appendTo($(container));
     var pagesSelect = document.createElement('div');
     $(pagesSelect).addClass('category-nav').addClass('fl-row').css('justify-content','flex-end').height('77px').appendTo(catBody);
         var pageSelectText = document.createElement('div');
         $(pageSelectText).text('Страницы').appendTo($(pagesSelect));
         var pageSelectors = document.createElement('div');
-
     for(var pageI = 1; pageI <= Math.ceil(productsInCategory.prods.length/17); pageI++) {
         var page = document.createElement('a');
         $(page).appendTo(pageSelectText).attr('href','#').text(pageI).attr('np',pageI)
@@ -424,7 +306,6 @@ function generateCategoryFlat(categoryId) { //TODO можно сделать к�
     var bottomPagesSelect = $(pagesSelect).clone(true,true,true);
     $(bottomPagesSelect).appendTo(catBody);
     $(countComment).text("Показано " + (startProd+1) + "-" + productsInCategory.offset + " из " + productsInCategory.prods.length + " товаров.")
-
     return container;
 }
 
@@ -507,7 +388,7 @@ function generateProductFlat(product) {
             })
             .appendTo($(caption));
 
-    $(prodBody).addClass('fl-row').addClass('white-bg').css('margin-top','18px').appendTo($(container));
+    $(prodBody).addClass('shadow').addClass('fl-row').addClass('white-bg').css('margin-top','18px').appendTo($(container));
         var gallery = document.createElement('div');
         var specification = document.createElement('div');
         var buy = document.createElement('div');
@@ -649,7 +530,7 @@ function generateProductFlat(product) {
         "Другие товары из категории \"" + categoriesData[product.category].name + "\"",
         1,
         catProdsData);
-    $(sameProducts).css("margin-top",'24px').appendTo($(container));
+    $(sameProducts).addClass('shadow').css("margin-top",'24px').appendTo($(container));
 
     return container;
 }
@@ -668,259 +549,72 @@ function productBonus(img, topText, bottomText) {
     return bonusBox;
 }
 
-function generateFotoRuler(product) {
-    var ruler = document.createElement('div');
-    $(ruler).height("60px").addClass('fl-row');
-
-    $.each(product.images, function (i, item) {
-        var thumb = document.createElement('div');
-        $(thumb).addClass('ruler-thumb').attr('name','thumb')
-            .css('background','url("./img/products/' + product.id + '/' + item + '") left center no-repeat')
-            .css('margin-left','7.5px').css('margin-right','7.5px')
-            .css("background-position","center").css('background-size','contain')
-            .on('click',function () {
-                $('div[name=thumb]').removeClass('ruler-thumb-checked');
-                $(this).addClass('ruler-thumb-checked');
-            })
-            .appendTo($(ruler));
-    });
-
-    return ruler;
-}
-
-function generateProductDiv(product) {
-    var productBox = document.createElement('div');
-    var productAction = document.createElement('div');
-    var productImage = document.createElement('div');
-    var productSpec = document.createElement('div');
-    var productName = document.createElement('div');
-    var productCost = document.createElement('nobr');
-    $(productBox).addClass("product-box").css('cursor','pointer')
-        .addClass("white-bg")
-        .on('click', function() {
-            prepareFlat();
-            prodcutFlat = generateProductFlat(product);
-            $(prodcutFlat).appendTo($("#content"));
-            $.ajax({
-                type: 'POST',
-                url: 'utils.php',
-                data: 'clickCounter&productId=' + product.id,
-                dataType: 'text'
-            });
-        });
-    $(productAction).addClass("product-action")
-        .appendTo($(productBox));
-    $(productImage).addClass("product-image")
-        .appendTo($(productBox));
-    $(productSpec).addClass("product-spec")
-        .addClass("fl-row")
-        .addClass("fl-vcenter")
-        .addClass("fl-space")
-        .appendTo($(productBox));
-    $(productName).addClass("gray-text")
-        .css("font-size", "14px")
-        .css("margin-left", "7px")
-        .appendTo($(productSpec));
-    var productCostBox = document.createElement('div');
-    $(productCostBox).addClass('fl-col').addClass('fl-vcenter').addClass('fl-hcenter').appendTo($(productSpec));;
-    $(productCost).addClass("magenta-text")
-        .addClass("italic")
-        .addClass("light")
-        .css("font-size", "18px")
-        .css("margin-right", "7px")
-        .appendTo($(productCostBox));
-
-    $(productName).text(product.name);
-    if(product.details.actionCost != null & product.details.actionCost > 0) {
-        var oldCost = document.createElement('nobr');
-        $(oldCost).addClass("italic").addClass('light').css('font-size','14px').css('color','#999999')
-            .css('text-decoration','line-through')
-            .text(parseInt(product.details.currentCost).formatMoney(0,'.',' ')).appendTo($(productCostBox));
-        $(productCost).text(parseInt(product.details.actionCost).formatMoney(0,'.',' '));
-    } else {
-        $(productCost).text(parseInt(product.details.currentCost).formatMoney(0,'.',' '));
-    }
-    $(productImage).css('background-image', 'url("./img/products/' + product.id + "/" + product.images[0] + '")');
-    switch (product.details.badge) {
-        case "new": var badge = images.newBadge();
-            $(badge).appendTo(productImage); break;
-        case "hot": var badge = images.hotBadge();
-            $(badge).appendTo(productImage); break;
-        case "sale": var badge = images.saleBadge();
-            $(badge).appendTo(productImage); break;
-    };
-    return productBox;
-}
-
-function generateProductsContainer(id, caption, rowsCount, prodContData) {
-    var rows = rowsCount;
-    var productsContainer = id;
-    var productsObjects = prodContData;
-
-    var container = document.createElement('div');
-    var rowsWrap = document.createElement('div');
-    $(rowsWrap).addClass('fl-col').attr('id','rows' + id);
-    $(container).addClass('fl-col').attr('id',productsContainer)
-        .addClass('fl-vcenter').css('overflow','hidden')
-        .addClass('products-container');
-    titleBar = document.createElement('div');
-    $(titleBar).addClass('fl-row')
-        .addClass('fl-vcenter')
-        .addClass('fl-space')
-        .addClass('white-bg')
-        .css("height", "76px")
-        .css("width", "1170px");
-        titleCaption = document.createElement('div');
-
-    var scrollNav = document.createElement('div');
-    var left = document.createElement('a');
-    var right = document.createElement('a');
-    var lessImage = document.createElement('img');
-    var moreImage = document.createElement('img');
-    $(lessImage).attr('src', 'img/less.png').appendTo($(left));
-    $(moreImage).attr('src', 'img/more.png').appendTo($(right));
-
-    $(left).attr('href','#').appendTo($(scrollNav));
-    $(right).attr('href','#').css("margin-left", "10px").appendTo($(scrollNav));
-
-    $(left).on('click', function(e){ //backward
-        e.preventDefault();
-        var newRows = document.createElement('div');
-        $(newRows).addClass('fl-col').attr('id','rows' + id);
-        if(productsObjects.lastDirection == 'forward') {
-             if(productsObjects.firstProd == 0) {
-                 productsObjects.offset = productsObjects.prods.length - 1;
-             } else {
-                 productsObjects.offset = productsObjects.firstProd - 1;
-             }
-        }
-        for(var i = 0; i < rows; i++) {
-            var row = generateProductsRow(4, productsObjects, 'backward');
-            $(row).appendTo($(newRows));
-        }
-        $('#rows' + id).fadeOut(200, function () {
-            $(this).replaceWith(newRows);
-            $('#rows' + id).fadeIn(200);
-
-        });
-        productsObjects.lastDirection = 'backward';
-    });
-    $(right).on('click', function (e) {
-        e.preventDefault();
-        var newRows = document.createElement('div');
-        $(newRows).addClass('fl-col').attr('id','rows' + id);
-        if(productsObjects.lastDirection == 'backward') {
-            if(productsObjects.firstProd == productsObjects.prods.length) {
-                productsObjects.offset = 0;
-            } else {
-                productsObjects.offset = productsObjects.firstProd + 1;
-            }
-        }
-        for(var i = 0; i < rows; i++) {
-            var row = generateProductsRow(4, productsObjects, 'forward');
-            $(row).appendTo($(newRows));
-        }
-        $('#rows' + id).fadeOut(200, function () {
-            $(this).replaceWith(newRows);
-            $('#rows' + id).fadeIn(200);
-
-        });
-        productsObjects.lastDirection = 'forward';
-    })
-
-    $(titleCaption).text(caption)
-        .addClass("dark-blue-text")
-        .css("font-size", "24px")
-        .css("margin-left", "30px")
-        .appendTo(titleBar);
-    $(scrollNav).css("margin-right", "30px").appendTo(titleBar);
-    $(titleBar).appendTo($(container));
-    productsObjects.firstProd = productsObjects.offset;
-
-    for (i1 = 0; i1 < rowsCount; i1++) {
-        var row = generateProductsRow(4, productsObjects, 'forward');
-        $(row).appendTo($(rowsWrap));
-    }
-    productsObjects.lastProd = productsObjects.offset;
-    productsObjects.lastDirection = 'forward';
-    //$(container).attr('last-prod',productsObjects.offset);
-    //$(container).attr('last-direction','forward');
-    $(rowsWrap).appendTo($(container));
-    return container;
-}
-
-function generateProductsRow(count, prodContData, direction) {
-    var row = document.createElement('div');
-    $(row).addClass("fl-row");
-       // .addClass("fl-space");
-        //.css("width", "1170px");
-    if(direction == 'forward') {
-        for(i2 = 0; i2 < count; i2++) {
-            var box = generateProductDiv(prodContData.prods[prodContData.offset]);
-            var offset = prodContData.offset;
-            $(box).attr('num', offset);
-            $(box).appendTo($(row));
-            prodContData.offset++;
-            if(prodContData.offset>=prodContData.prods.length) {
-                prodContData.offset=0;
-            }
-        }
-    } else if (direction == 'backward') {
-        for(i2 = 0; i2 < count; i2++) {
-            var box = generateProductDiv(prodContData.prods[prodContData.offset]);
-            var offset = prodContData.offset;
-            $(box).attr('num', offset);
-            $(box).appendTo($(row));
-            prodContData.offset--;
-            if(prodContData.offset<0) {
-                prodContData.offset=prodContData.prods.length-1;
-            }
-        }
-    }
-
-    return row;
-}
-
 function generatePromoProductsContainer() {
     var promoProductsContainer = document.createElement('div');
     $(promoProductsContainer).addClass("products-container")
         .addClass("fl-row")
-        .addClass("fl-space");
+        .addClass("fl-space")
+        .css("height", "311px");
     //TODO Доделать после БД
-    var promo1 = generatePromoProductDiv("img/promo1.jpg", false, false, "black");
-    var promo2 = generatePromoProductDiv("img/promo2.jpg", false, true, "black");
-    var promo3 = generatePromoProductDiv("img/promo3.jpg", true, false, "white");
+    var promoProds = $.ajax({
+        type: 'POST',
+        url: 'content.php',
+        async: false,
+        dataType: 'json',
+        data: 'promoprods'}).responseJSON;
+
+
+    var promo1 = generatePromoProductDiv("img/promo1.jpg", false, false, "black",promoProds.result[0]);
+    var promo2 = generatePromoProductDiv("img/promo2.jpg", false, true, "black",promoProds.result[1]);
+    var promo3 = generatePromoProductDiv("img/promo3.jpg", true, false, "white",promoProds.result[2]);
     $(promo1).appendTo($(promoProductsContainer));
     $(promo2).appendTo($(promoProductsContainer));
     $(promo3).appendTo($(promoProductsContainer));
     return promoProductsContainer;
-
-
 }
 
-function generatePromoProductDiv(bgimage, double, alignRight, color) { //TODO доделать после БД
+function generatePromoProductDiv(bgimage, double, alignRight, color, promoProd) { //TODO доделать!!!
     var promoProductBox = document.createElement('div');
-    $(promoProductBox).addClass("fl-row");
-
-    var productText = document.createElement('div');
-    $(productText).addClass("fl-col")
+    $(promoProductBox).addClass("fl-col")
         .addClass("italic")
         .css("height", "100%")
-        .css("align-self", "flex-end")
+        .css("justify-content", "flex-end")
         .css("font-size", "32px")
         .css("color", color)
+        .css("cursor","pointer")
+        .on('click', function () {
+            prepareFlat();
+            prodcutFlat = generateProductFlat(promoProd);
+            $(prodcutFlat).appendTo($("#content"));
+            $.ajax({
+                type: 'POST',
+                url: 'utils.php',
+                data: 'clickCounter&productId=' + promoProd.id,
+                dataType: 'text'
+            });
+        })
         .appendTo($(promoProductBox));
 
     var firstLine = document.createElement('div');
     var secondLine = document.createElement('div');
-    $(firstLine).text("название")
+    $(firstLine).text(promoProd.firstLine)
         .addClass("bold")
         .addClass("uppercase")
-        .appendTo($(productText));
-    $(secondLine).text("промо-товара")
+        .appendTo($(promoProductBox));
+    $(secondLine).text(promoProd.secondLine)
         .addClass("light")
         .addClass("uppercase")
-        .appendTo($(productText));
+        .css('margin-bottom','28px')
+        .appendTo($(promoProductBox));
+
+    if(alignRight) {
+        $(promoProductBox).css('align-items','flex-end');
+        $(firstLine).attr('align','right').css('margin-right','14px');
+        $(secondLine).attr('align','right').css('margin-right','14px');
+    } else {
+        $(firstLine).css('margin-left','20px');
+        $(secondLine).css('margin-left','20px');
+    }
     if (double) {
         $(promoProductBox).addClass("promo-product-dbox");
     } else {
@@ -929,89 +623,6 @@ function generatePromoProductDiv(bgimage, double, alignRight, color) { //TODO д
     $(promoProductBox).css('background-size', 'cover')
         .css('background-image', 'url("./' + bgimage + '")');
     return promoProductBox;
-}
-
-function generateAboutShop() {
-    var aboutShopContainer = document.createElement('div');
-    ($(aboutShopContainer)).addClass("products-container")
-        .css("height", "269px")
-        .css("padding-top", "42px");
-    var aboutText = document.createElement('div');
-    var aboutCaption = document.createElement('div');
-    var aboutContent = document.createElement('div');
-    $(aboutCaption).addClass("bold")
-        .addClass("dark-blue-text")
-        .addClass("italic")
-        .css("font-size", "24px")
-        .appendTo(aboutText);
-    $(aboutContent).css("height", "190px")
-        .css("font-size", "14px")
-        .css("line-height", "24px")
-        .css("margin-top", "20px")
-        .addClass("light")
-        .addClass("gray-text")
-        .css("overflow", "hidden")
-        .appendTo(aboutText);
-    $(aboutText).css("width", "510px")
-        .css("margin-left", "500px")
-
-        .appendTo($(aboutShopContainer));
-    $.ajax({
-        type: 'POST',
-        url: 'utils.php',
-        dataType: 'json',
-        data: 'aboutblock',
-        success: function (msg) {
-            $(aboutCaption).text(msg.caption);
-            $(aboutContent).html(msg.content);
-            $(aboutShopContainer).css('background-image', 'url("./' + msg.bgimage + '")')
-                .css('background-size', 'cover');
-        }
-    });
-    return aboutShopContainer;
-}
-
-function generateFooter() {
-    var footerContainer = document.createElement('div');
-    $(footerContainer).addClass("dark-blue-bg")
-        .addClass("fl-row")
-        .addClass("fl-space")
-        .addClass("products-container")
-        .css("height", "59px");
-    var textBlock = document.createElement('div');
-    $(textBlock).html("Шаблон для экзаменационного задания<br>Разработан специально для «Всероссийской Школы Программирования»<br>http://bedev.ru/")
-        .appendTo($(footerContainer));
-    var upBlock = document.createElement('div');
-    $(textBlock).addClass("fl-col")
-        .css("font-size", "11px")
-        .css("color", "#999999")
-        .appendTo($(footerContainer));
-    $(upBlock).addClass("fl-row")
-        .css("cursor", "pointer")
-        .css("margin-right", "30px")
-        .css("font-size", "16px")
-        .addClass("white-text")
-        .addClass("light")
-        .addClass("fl-vcenter")
-        .click(function () {
-            $("html, body").animate({scrollTop: 0}, "slow");
-        })
-        .appendTo($(footerContainer));
-    var upText = document.createElement('div');
-    var upImage = document.createElement('img');
-    $(upText).text("Наверх")
-        .appendTo($(upBlock));
-    ;
-    $(upImage).attr("src", "img/totop.png")
-        .css("margin-left", "5px")
-        .appendTo($(upBlock));
-
-
-    return footerContainer;
-}
-
-function layoutAggregator() {
-    //TODO подумать может чего хорошего придумаю
 }
 
 function showRegistration() {
@@ -1102,6 +713,14 @@ function showRegistration() {
 }
 
 function showAccount() {
+    var passChanged = false;
+    var emailChanged = false;
+    var fioChanged = false;
+    var telChanged = false;
+    var cityChanged = false;
+    var streetChanged = false;
+    var homeChanged = false;
+    var flatChanged = false;
     layout = document.createElement('div');
     layoutCaption = document.createElement('div');
     $(layoutCaption).addClass("layout-caption").appendTo($(layout));
@@ -1115,84 +734,134 @@ function showAccount() {
     $(layoutCol2).addClass("layout-half-col").appendTo($(layoutBody));
     persData = document.createElement('div');
     $(persData).text("Ваши данные").addClass('subtitle').appendTo($(layoutCol1));
-    username = generateInputField("Контактное лицо (ФИО)", 'username', false);
-    userphone = generateInputField("Контактный телефон:", 'userphone', false);
-    email = generateInputField("E-mail адрес:", 'email', false);
-    $(username).appendTo($(layoutCol1));
+    userfio = generateInputField("Контактное лицо (ФИО)", 'accfio', false);
+    userphone = generateInputField("Контактный телефон:", 'acctel', false);
+    email = generateInputField("E-mail адрес:", 'accemail', false);
+    $(userfio).appendTo($(layoutCol1));
     $(userphone).appendTo($(layoutCol1));
     $(email).appendTo($(layoutCol1));
-
     deliveryAddress = document.createElement('div');
     $(deliveryAddress).text("Адрес доставки").addClass('subtitle').appendTo($(layoutCol1));
-    city = generateInputField("Город:", 'city', false);
-    street = generateInputField("Улица:", 'street', false);
-    home = generateDoubleInputField("Дом", 'home', false, "Квартира", 'flat', false);
+    city = generateInputField("Город:", 'acccity', false);
+    street = generateInputField("Улица:", 'accstreet', false);
+    inputDoubleFieldContainer = document.createElement('div');
+    home = generateInputField("Дом", 'acchome', false);
+    flat = generateInputField("Квартира", 'accflat', false);
+    $(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
+    $(home).appendTo($(inputDoubleFieldContainer));
+    $(flat).appendTo($(inputDoubleFieldContainer));
     $(city).appendTo($(layoutCol1));
     $(street).appendTo($(layoutCol1));
-    $(home).appendTo($(layoutCol1));
-
+    $(inputDoubleFieldContainer).appendTo($(layoutCol1));
     changePasswod = document.createElement('div');
     $(changePasswod).text("Изменение пароля").addClass('subtitle').appendTo($(layoutCol1));
-    passw = generateInputField("Введите новый пароль", 'passw', true);
-    rpassw = generateInputField("Повторите новый пароль:", 'rpassw', true);
+    passw = generateInputField("Введите новый пароль", 'accpassw', true);
+    rpassw = generateInputField("Повторите новый пароль:", 'accrpassw', true);
     $(passw).appendTo($(layoutCol1));
     $(rpassw).appendTo($(layoutCol1));
-
+    $(city).children('input').on('change', function() {cityChanged = true;});
+    $(street).children('input').on('change', function() {streetChanged = true;});
+    $(home).children('input').on('change', function() {homeChanged = true;});
+    $(flat).children('input').on('change', function() {flatChanged = true;});
+    $(userfio).children('input').on('change', function() {fioChanged = true;});
+    $(userphone).children('input').on('change', function() {telChanged = true;});
+    $(email).children('input').on('change', function() {emailChanged = true;});
+    $(passw).children('input').on('change', function() {passChanged = true;});
+    $(rpassw).children('input').on('change', function() {passChanged = true;})
     saveSubmit = document.createElement('a');
-    $(saveSubmit).text('Сохранить').addClass('redbutton').addClass('hidemodal').appendTo($(layoutCol1));
-    $(saveSubmit).css("width", "134px");
+    $(saveSubmit).addClass('redbutton').addClass('hidemodal').appendTo($(layoutCol1));
+    saveSubmitText = document.createElement('span');
+    $(saveSubmitText).text('Сохранить').appendTo(saveSubmit);
+    $(saveSubmit).css("width", "134px")
+        .on('click', function (e) {
+            e.preventDefault();
+            var canUpdate = true;
+            if (emailChanged) {
+                if (!patternEmail.test($('#accemail').val())) {
+                    alert("Введен ошибочный e-mail!")
+                    canUpdate = false;
+                    return;
+                } else {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'login.php',
+                        dataType: 'text',
+                        async: false,
+                        data: 'usercheck=' + encodeURIComponent($('#accemail').val()),
+                        success: function (msg) {
+                            if (msg == true) {
+                                alert('Пользователь с указанным email уже зарегистрирован!')
+                                canUpdate = false;
+                            }
+                        }
+                    });
+                }
+            }
+            if ($('#accfio').val().length < 2) {
+                alert("Укажите своё имя!");
+                canUpdate = false;
+                return;
+            }
 
+            if (passChanged) {
+                if ($('#accpassw').val().length > 0) {
+                    if ($('#accpassw').val().length < 6) {
+                        alert("Пароль должен быть не менее 6 символов!");
+                        canUpdate = false;
+                        return;
+                    }
+                    if ($('#accpassw').val() != $('#accrpassw').val()) {
+                        alert("Пароли не совпадают!");
+                        canUpdate = false;
+                        return;
+                    }
+                } else {
+                    alert("Введите пароль (не менее 6 символов)!")
+                    canUpdate = false;
+                }
+            }
+            if (canUpdate) {
+                if (
+                    cityChanged ||
+                    streetChanged ||
+                    homeChanged ||
+                    flatChanged ||
+                    fioChanged ||
+                    telChanged ||
+                    emailChanged ||
+                    passChanged) {
+                    var prData = {
+                        userData: {
+                            city: $('#acccity').val(),
+                            street: $('#accstreet').val(),
+                            home: $('#acchome').val(),
+                            flat: $('#accflat').val(),
+                            fio: $('#accfio').val(),
+                            tel: $('#acctel').val()
+                        }
+                    };
+
+                    if (emailChanged) prData.email = $('#accemail').val();
+                    if (passChanged) prData.passw = $('#accpassw').val();
+                    $.ajax({
+                        url: 'login.php',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: 'update=' + prepareData(prData),
+                        success: function (msg) {
+                            alert(msg.response);
+                        }
+                    })
+                }
+                $("#lean_overlay").trigger("click");
+            }
+        });
     selfOrders = document.createElement('div');
     $(selfOrders).text("Ваши заказы").addClass('subtitle').appendTo($(layoutCol2));
-
     $(layout).addClass("layout").attr('id', 'accmodal').appendTo("body");
 }
 
-images = {
-    newBadge : function () {
-        var imgContainer = document.createElement('div');
-        var img = document.createElement("img");
-        $(img).attr('src','./img/corner_new.png').appendTo($(imgContainer));
-        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
-        return imgContainer;
-    },
-    hotBadge : function () {
-        var imgContainer = document.createElement('div');
-        var img = document.createElement("img");
-        $(img).attr('src','./img/corner_hot.png').appendTo($(imgContainer));
-        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
-        return imgContainer;
-    },
-    saleBadge : function () {
-        var imgContainer = document.createElement('div');
-        var img = document.createElement("img");
-        $(img).attr('src','./img/corner_sale.png').appendTo($(imgContainer));
-        $(imgContainer).addClass("fl-row").css("align-self","flex-start");
-        return imgContainer;
-    }
-}
 
-function generateInputField(caption, name, password) {
-    var inputFieldContainer = document.createElement('div');
-    var inputFieldCaption = document.createElement('label');
-    var inputField = document.createElement('input');
-    if (password == true) {
-        $(inputField).attr('type', 'password');
-    }
-    $(inputFieldCaption).attr('for', name).text(caption).appendTo($(inputFieldContainer));
-    $(inputField).attr('id', name).appendTo($(inputFieldContainer));
-    $(inputFieldContainer).addClass('layout-input');
-    return inputFieldContainer;
-}
 
-function generateDoubleInputField(cap1, name1, pass1, cap2, name2, pass2) {
-    var inputDoubleFieldContainer = document.createElement('div');
-    var inputField1 = generateInputField(cap1, name1, pass1);
-    var inputField2 = generateInputField(cap2, name2, pass2);
-    $(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
-    $(inputField1).appendTo($(inputDoubleFieldContainer));
-    $(inputField2).appendTo($(inputDoubleFieldContainer));
-    return inputDoubleFieldContainer;
-}
 
 

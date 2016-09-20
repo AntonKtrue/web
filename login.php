@@ -15,6 +15,55 @@ if(isset($_POST['register'])) {
     $response["result"]="success";
 }
 
+
+if(isset($_POST['getAccount'])) {
+    if(isset($_SESSION['hash']) && isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+        $hash = $_SESSION['hash'];
+        $q = $c->query("SELECT login, userData FROM users WHERE login = '$user' AND hash = '$hash'");
+        if($q->num_rows==1) {
+            $result = $q->fetch_object();
+            $result->userData = json_decode($result->userData);
+            echo json_encode($result);
+        } else {
+            echo json_encode(array("result"=>"error"));
+        }
+
+    }
+    return;
+}
+
+if(isset($_POST['update'])) {
+    $data = json_decode($_POST['update']);
+
+    $s = $c->prepare('UPDATE users SET userData = JSON_SET(userData, "$.city", ?, "$.street", ?, "$.home", ? , "$.flat", ?, "$.fio", ?, "$.tel", ?) WHERE login = ? AND hash = ?');
+    $s->bind_param("ssssssss",
+        $data->userData->city,
+        $data->userData->street,
+        $data->userData->home,
+        $data->userData->flat,
+        $data->userData->fio,
+        $data->userData->tel,
+        $_SESSION['user'],
+        $_SESSION['hash']);
+    $s->execute();
+
+    if(isset($data->passw)) {
+        $newpass = md5($data->passw);
+
+        $c->query("UPDATE users SET password = '$newpass' WHERE login = '". $_SESSION['user'] . "' AND hash = '".$_SESSION['hash']. "'");
+        $c->commit();
+    }
+    if(isset($data->email)) {
+        $c->query("UPDATE users SET login = '".$data->email."' WHERE login = '". $_SESSION['user'] . "' AND hash = '".$_SESSION['hash']. "'");
+        $c->commit();
+        $_SESSION['user'] = $data->email;
+    }
+
+    echo json_encode(array("result"=>"success"));
+    return;
+}
+
 if(isset($_POST['usercheck'])) {
     $q = $c->query("SELECT * FROM users WHERE login = '" . $_POST['usercheck'] . "'");
     echo ($q->num_rows > 0);

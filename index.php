@@ -10,6 +10,7 @@
     <script type="text/javascript" src="./jquery.leanModal.min.js"></script>
     <script type="text/javascript" src="./jquery-ui.js"></script>
     <script type="text/javascript" src="./jquery.scrollbox.js"></script>
+    <script type="text/javascript" src="fetch.js"></script>
     <script type="text/javascript" src="jqscripts.js"></script>
 </head>
 <header></header>
