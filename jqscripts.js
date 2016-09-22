@@ -171,6 +171,7 @@ function generateNavigationBar() {		//Генерация панели навиг
     navBar = document.createElement('div');
     $(navBar).attr('id', "navbar")
         .addClass('fl-row')
+
         .css("margin-top", "27px");
     mainLogo = generateMainLogo();
     $(mainLogo).appendTo($(navBar));
@@ -190,19 +191,33 @@ function generateNavigationBar() {		//Генерация панели навиг
 }
 
 function generateCartMenu() {
+    var cartData = $.ajax({
+        url: 'cart.php',
+        async: false,
+        method: 'POST',
+        dataType: 'json',
+        data: "opencart"
+    }).responseJSON;
     cartBar = document.createElement('div');
     $(cartBar).addClass('cart-bar-area')
-        .addClass('dark-blue-bg white-text').addClass('fl-row fl-vcenter fl-hcenter');
+        .addClass('dark-blue-bg white-text').addClass('fl-row fl-vcenter fl-hcenter')
+        .css('cursor','pointer').on('click', function() {
+            prepareFlat();
+            cartFlat = generateCartFlat(cartData);
+            $(cartFlat).appendTo($("#content"));
+    });
     cartBarInfoBox = document.createElement('div');
     $(cartBarInfoBox).appendTo(cartBar).addClass('fl-col');
         cartBarSumm = document.createElement('nobr');
-        $(cartBarSumm).css('font-size','20px').css('font-weight','bolder')
-            .text(12345..formatMoney(0,"."," ")).appendTo(cartBarInfoBox);
-        cartBarCount = generateCartCount(45);
-        $(cartBarCount).appendTo(cartBarInfoBox).css('color','#999999')
-            .css('font-size','12px');
+        $(cartBarSumm).css('font-size','20px').css('font-weight','bolder').appendTo(cartBarInfoBox);
     cartImg = document.createElement('img');
     $(cartImg).attr("src",'./img/cart.png').css('opacity','0.2').appendTo(cartBar);
+
+    if(cartData.result == null) {
+        $(cartBarSumm).attr('id','cartSum').text(parseInt(cartData.summa).formatMoney(0,"."," "));
+        cartBarCount = generateCartCount(cartData.productsCount);
+        $(cartBarCount).appendTo(cartBarInfoBox);
+    }
 
     return cartBar;
 }
@@ -228,6 +243,7 @@ function generateCartCount(count) {
             $(cartCount).text(count + " предмета");
             break;
     }
+    $(cartCount).attr('id','cartCount').css('color','#999999').css('font-size','12px');
     return cartCount;
 }
 
@@ -256,6 +272,60 @@ function generateCategories() { //TODO доделать прокрутку
         $(catElement).appendTo($(categoriesLine));
     });
     return categoriesLine;
+}
+function generateCartFlat(cartData) {
+    var container = document.createElement('div');
+    var caption = document.createElement('div');
+    var cartBody = document.createElement('div');
+    $(container).addClass('fl-col').addClass('products-container');
+    $(caption).addClass('flat-caption').appendTo($(container));
+    var captionText = document.createElement('h1');
+    $(captionText).text('корзина').appendTo($(caption));
+    $(cartBody).addClass('order').addClass('order-head').addClass('fl-vcenter').addClass('shadow').css('margin-top','18px').appendTo($(container));
+        var prodCol = document.createElement('div');
+        var availableCol = document.createElement('div');
+        var costCol = document.createElement('div');
+        var countCol = document.createElement('div');
+        var summaCol = document.createElement('div');
+
+    $(prodCol).appendTo(cartBody);
+    $(availableCol).appendTo(cartBody);
+    $(costCol).appendTo(cartBody);
+    $(countCol).appendTo(cartBody);
+    $(summaCol).appendTo(cartBody);
+
+    var prodText = document.createElement('span');
+    var availableText = document.createElement('span');
+    var costText =  document.createElement('span');
+    var countText = document.createElement('span');
+    var summaText = document.createElement('span');
+
+    $(prodText).text('Товар').css('maring-left','20px');
+    $(availableText).text('Доступность').css('margin-left','15px');
+    $(costText).text('Стоимость').css('margin-left','12px');
+    $(countText).text('Количество').css('margin-left','10px');
+    $(summaText).text('Итого').css('margin-left','10px');
+
+    $.each(cartData.details, function(i, item) {
+        var detail = document.createElement('div');
+        $(detail).addClass('fl-row').addClass('order');
+
+        var prod = document.createElement('div');
+        var available = document.createElement('div');
+        var cost = document.createElement('div');
+        var count = document.createElement('div');
+        var summa = document.createElement('div');
+        $(prod).appendTo(detail); $(available).appendTo(detail); $(cost).appendTo(detail);
+        $(count).appendTo(detail); $(summa).appendTo(detail);
+            var prodImg = document.createElement('div');
+            $(prodImg).addClass('prod-img').css('background-image','url("./img/products/"'+ item.images[0] +')')
+                .appendTo(prod);
+        $(detail).appendTo(container);
+    });
+
+
+
+    return container;
 }
 
 function generateCategoryFlat(categoryId) { //TODO доделать перелистывание - неправильный подсчет можно сделать кэширование при попадании в одну и туже категорию
@@ -511,7 +581,25 @@ function generateProductFlat(product) {
     var buyButtonArea = document.createElement('div');
     $(buyButtonArea).addClass('buy-button-area').appendTo($(buy));
     var buyButton = document.createElement('a');
-    $(buyButton).addClass('button').attr('href','#').appendTo($(buyButtonArea));
+    $(buyButton).addClass('button').attr('href','#').appendTo($(buyButtonArea))
+        .on('click', function () {
+            var prData = {
+                id: product.id,
+                cost: product.details.actionCost > 0 ? product.details.actionCost : product.details.currentCost
+            }
+            $.ajax({
+                url: 'cart.php',
+                async: false,
+                method: 'POST',
+                dataType: 'json',
+                data: 'addProd=' + prepareData(prData),
+                success: function(msg) {
+                    alert("Товар добавлен!");
+                    $('#cartSum').text(parseInt(msg.summa).formatMoney(0,'.',' '));
+                    $('#cartCount').replaceWith(generateCartCount(msg.products));
+                }
+            })
+        });
     var buyButtonImg  = document.createElement('img');
     $(buyButtonImg).css('margin-left','-5px').attr('src','./img/prod_cart.png').appendTo($(buyButton));
     var buyButtonText = document.createElement('span');

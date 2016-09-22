@@ -20,7 +20,8 @@ function generateMainPromoScreen() {   // Генерация начальной 
             $(promoProductArea).addClass("fl-col")
                 .css("align-self", "flex-start")
                 .addClass("promo-product").css('width','600px')
-                .css('height','400px')
+                .css('order',2)
+                .css('height','420px')
                 .css('overflow','hidden');;
             $(firstLine).text(msg.firstLine)
                 .addClass("uppercase")
@@ -38,7 +39,8 @@ function generateMainPromoScreen() {   // Генерация начальной 
                 .css("line-height", "65px")
                 .css("letter-spacing", "-2px")
                 .appendTo($(promoProductArea));
-            $(desc).text(msg.product.details.desc)
+            $short_desc = msg.product.details.desc.split(/\.|\!/);
+            $(desc).text($short_desc[0])
                 .addClass("white-text")
                 .css("font-size", "16px")
                 .css("line-height", "17px")

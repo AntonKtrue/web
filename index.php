@@ -12,6 +12,8 @@
     <script type="text/javascript" src="./jquery.scrollbox.js"></script>
     <script type="text/javascript" src="fetch.js"></script>
     <script type="text/javascript" src="jqscripts.js"></script>
+    <script type="text/javascript" src="ready-generators.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
 </head>
 <header></header>
 <div id="content"></div>
