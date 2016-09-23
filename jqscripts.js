@@ -453,20 +453,21 @@ function generateCartFlat() {
         prepareFlat();
         var checkoutFlat = generateCheckoutFlat();
         $(checkoutFlat).appendTo($('#content'));
-        var acc = document.getElementsByClassName("accordion");
-        var i;
 
-        for (i = 0; i < acc.length; i++) {
-            acc[i].onclick = function(){
-                $('div.accordion').removeClass("active");
-                //$('div.accordion').next().removeClass("show");
-                $('div.accordion').next().hide(200);
-                $(this).addClass("active");
-                //$(this).next().addClass("show");
-                $(this).next().show(200);
-
-            }
-        }
+        // var acc = document.getElementsByClassName("accordion");
+        // var i;
+        //
+        // for (i = 0; i < acc.length; i++) {
+        //     acc[i].onclick = function(){
+        //         $('div.accordion').removeClass("active");
+        //         $('div.accordion').next().removeClass("show");
+        //        // $('div.accordion').next().hide(200);
+        //         $(this).addClass("active");
+        //         $(this).next().addClass("show");
+        //         //$(this).next().show(200);
+        //
+        //     }
+        // }
     });
     var summaBoxText = '<span>Итого:</span>';
     $(summaBoxText).appendTo(summaBox).css('font-size','24px');
@@ -491,25 +492,50 @@ function generateCheckoutFlat() {
     $(captionText).text('оформление заказа').appendTo($(caption));
 
     var accPersData = document.createElement('div');
-    $(accPersData).appendTo(checkBody).text("Контактная информация").addClass('accordion');
-    var accPersDataPanel = getDiv('panel');
-    $(accPersDataPanel).text('Персональные данные и логин').appendTo(checkBody);
+    $(accPersData).appendTo(checkBody).html("<span style='margin-left:30px'>1.</span>&nbsp; Контактная информация")
+        .addClass('accordion active');
+    var accPersDataPanel = getDiv('panel show');
+    $(accPersDataPanel).appendTo(checkBody);
+    var accPersContent = getDiv('fl-row');
+    $(accPersContent).appendTo(accPersDataPanel);
+    var accPersCol1 = getDiv('fl-col');
+    $(accPersCol1).width('390px').css('margin-top','34px').appendTo(accPersContent);
+    var accPersCol1Caption = getDiv('magenta-text bold');
+    $(accPersCol1Caption).text("Для новых покупателей").css('margin-left','30px').css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol1);
+    userfio = generateInputField("Контактное лицо (ФИО)", 'ordfio', false);
+    userphone = generateInputField("Контактный телефон:", 'ordtel', false);
+    email = generateInputField("E-mail адрес:", 'ordemail', false);
+    $(userfio).appendTo($(accPersCol1));
+    $(userphone).appendTo($(accPersCol1));
+    $(email).appendTo($(accPersCol1));
+    var contButton = getDiv('fl-row fl-vcenter fl-hcenter light');
+    $(contButton).addClass('magenta-bg').width('155px').height('50px').text('Продолжить').attr('href','#')
+        .css('font-size','18px').css('color','white').appendTo(accPersCol1);
 
-    var accPersData = document.createElement('div');
-    $(accPersData).appendTo(checkBody).text("Информация о доставке").addClass('accordion');
-    var accPersDataPanel = getDiv('panel');
-    $(accPersDataPanel).text('способо доставки').appendTo(checkBody);
+    var accPersCol2 = getDiv('fl-col');
+    $(accPersCol2).width('390px').css('margin-top','34px').appendTo(accPersContent);
+    var accPersCol2Caption = getDiv('magenta-text bold');
+    $(accPersCol2Caption).text("Быстрый вход").css('margin-left','30px').css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol2);
+    email = generateInputField("E-mail адрес:", 'qeemail', false);
+    passwd = generateInputField("Пароль:", 'qepasswd', true);
+    $(email).appendTo(accPersCol2);
+    $(passwd).appendTo(accPersCol2);
 
-    var accPersData = document.createElement('div');
-    $(accPersData).appendTo(checkBody).text("Подтверждение заказа").addClass('accordion');
-    var accPersDataPanel = getDiv('panel');
-    $(accPersDataPanel).text('подтвердить заказ').appendTo(checkBody);
+    var  deliveryData = document.createElement('div');
+    $(deliveryData).appendTo(checkBody).html("<span style='margin-left:30px'>2.</span>&nbsp; Информация о доставке").addClass('accordion');
+    var deliveryDataPanel = getDiv('panel');
+    $(deliveryDataPanel).text('способо доставки').appendTo(checkBody);
+
+    var acceptData = document.createElement('div');
+    $(acceptData).appendTo(checkBody).html("<span style='margin-left:30px'>3.</span>&nbsp; Подтверждение заказа").addClass('accordion');
+    var acceptDataPanel = getDiv('panel');
+    $(acceptDataPanel).text('подтвердить заказ').appendTo(checkBody);
 
 
     return container;
 }
 
-function generateCategoryFlat(categoryId) { //TODO доделать перелистывание - неправильный подсчет можно сделать кэширование при попадании в одну и туже категорию
+function generateCategoryFlat(categoryId) {
     var container = document.createElement('div');
     var caption = document.createElement('div');
     var catBody = document.createElement('div');
@@ -541,6 +567,10 @@ function generateCategoryFlat(categoryId) { //TODO доделать перели
                 $(".category-nav .active").removeClass('active');
                 $("a[np=" + $(this).attr('np') + "]").addClass('active');
                 productsInCategory.offset = 0 + 17*($(this).attr('np') - 1);
+
+                var startProd = productsInCategory.offset;
+
+
                 var newBodyProds = getCatBody(productsInCategory,
                     productsInCategory.prods.length - 17*($(this).attr('np') - 1) > 17 ? 17 : productsInCategory.prods.length - 17*($(this).attr('np') - 1) );
                 $('#catBodyProds').fadeOut(200, function() {
@@ -548,6 +578,8 @@ function generateCategoryFlat(categoryId) { //TODO доделать перели
                     $(newBodyProds).attr('id','catBodyProds');
                     $('#catBodyProds').fadeIn(200);
                 });
+                var endProds = productsInCategory.offset == 0 ? productsInCategory.prods.length : productsInCategory.offset ;
+                $(countComment).text("Показано " + (startProd+1) + "-" + endProds + " из " + productsInCategory.prods.length + " товаров.")
             });
         if(pageI==1) $(page).addClass('active');
     }
@@ -556,7 +588,8 @@ function generateCategoryFlat(categoryId) { //TODO доделать перели
     $(catBodyProds).attr('id','catBodyProds').appendTo(catBody);
     var bottomPagesSelect = $(pagesSelect).clone(true,true,true);
     $(bottomPagesSelect).appendTo(catBody);
-    $(countComment).text("Показано " + (startProd+1) + "-" + productsInCategory.offset + " из " + productsInCategory.prods.length + " товаров.")
+    var endProds = productsInCategory.offset == 0 ? productsInCategory.prods.length : productsInCategory.offset ;
+    $(countComment).text("Показано " + (startProd+1) + "-" + endProds + " из " + productsInCategory.prods.length + " товаров.")
     return container;
 }
 
