@@ -70,6 +70,20 @@ if(isset($_POST['filledcategories'])) {
 
 }
 
+if(isset($_POST['productId'])) {
+    $sql = "SELECT * FROM webdip.products WHERE id = " .$_POST['productId'];
+    $query = $conn->query($sql);
+
+    if($query->num_rows==1) {
+        $data = $query->fetch_object();
+        $data->details = json_decode($data->details);
+        $data->images = getProductImages($data->id);
+        echo json_encode($data);
+    } else {
+        json_encode(array("result"=>"empty"));
+    }
+}
+
 function getProductImages($prodId) {
     $img_dir = "./img/products/" . $prodId . "/";
     if( file_exists($img_dir) )$dir = scandir($img_dir);

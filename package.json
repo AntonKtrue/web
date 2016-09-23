@@ -1,9 +1,69 @@
-[
-  {
-    "page1":{
-      "blocks":[
-
+{
+  "productsCount": "16",
+  "summa": "136161.00",
+  "details": {
+    "127": {
+      "id": "1",
+      "order_id": "1",
+      "product_id": "127",
+      "product_count": "1",
+      "product_cost": "340.00",
+      "images": [
+        "5cf52b4518286d3e74a3856c5656599c"
+      ]
+    },
+    "46": {
+      "id": "2",
+      "order_id": "1",
+      "product_id": "46",
+      "product_count": "1",
+      "product_cost": "33950.00",
+      "images": [
+        "a48d9cb5a5262ebb0c44ae39458bc111"
+      ]
+    },
+    "86": {
+      "id": "7",
+      "order_id": "1",
+      "product_id": "86",
+      "product_count": "1",
+      "product_cost": "2500.00",
+      "images": [
+        "691f8069b014887af6cce11dfdbd04e1",
+        "e6cc4f7aa07cc458cc0f114249e78f44"
+      ]
+    },
+    "13": {
+      "id": "9",
+      "order_id": "1",
+      "product_id": "13",
+      "product_count": "1",
+      "product_cost": "19433.00",
+      "images": [
+        "26dd9c280345c4fd40d539be80b9a46c"
+      ]
+    },
+    "80": {
+      "id": "14",
+      "order_id": "1",
+      "product_id": "80",
+      "product_count": "1",
+      "product_cost": "2429.00",
+      "images": [
+        "147560ecb7c48f3b6727af2ccd9206a3",
+        "82eaa3a1857eeda0d6b0ec1628bce64b",
+        "db45cd0bfed8b24f57d48763f43ceff9"
+      ]
+    },
+    "44": {
+      "id": "16",
+      "order_id": "1",
+      "product_id": "44",
+      "product_count": "1",
+      "product_cost": "19180.00",
+      "images": [
+        "0b5f598f693cb0727b730ca3dfdb1863"
       ]
     }
   }
-]
+}
