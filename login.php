@@ -72,7 +72,8 @@ if(isset($_POST['usercheck'])) {
 if(isset($_POST['login'])) {
 	$login = json_decode($_POST['login'],true);
 	$response['trace']['postdata'] = $login;
-	if(checkUser($login)) {	
+	if(checkUser($login)) {
+	    session_regenerate_id(true);
 		$response['trace'][] = "user_checked";
 		$hash = md5(generateCode(10));
 		//$response['hash'] = $hash;
