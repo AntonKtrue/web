@@ -74,6 +74,7 @@ if(isset($_POST['login'])) {
 	$response['trace']['postdata'] = $login;
 	if(checkUser($login)) {
 	    session_destroy();
+        session_start();
 		$response['trace'][] = "user_checked";
 		$hash = md5(generateCode(10));
 		//$response['hash'] = $hash;
