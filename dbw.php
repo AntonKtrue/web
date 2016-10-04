@@ -11,26 +11,31 @@ $conn = db_conn();
 
 function open_cart($user, $hash=null ) {
     global $conn;
-
     if($hash) {
-        error_log(3);
-        $query = $conn->query("SELECT id FROM users WHERE login = '$user' AND hash = '$hash'");
-        if ($query->num_rows == 1) {
-            $user_id = $query->fetch_object()->id;
-            $query = $conn->query("SELECT * FROM orders WHERE user_id = $user_id AND status = 'open'");
-            if ($query->num_rows < 1) {
-                $conn->query("INSERT INTO orders (user_id, order_date, status) VALUES ($user_id, CURRENT_TIMESTAMP ,'open')");
-                $cart_id = $conn->insert_id;
-                $conn->commit();
-            } else {
-                $cart_id = $query->fetch_object()->id;
-            }
+        if(isset($_SESSION['order'])) {
+            $cart_id = $_SESSION['order'];
         } else {
-            return array("result" => "user error");
+            $query = $conn->query("SELECT id, userData FROM users WHERE login = '$user' AND hash = '$hash'");
+            if ($query->num_rows == 1) {
+                $row  = $query->fetch_object();
+                $row->userData = json_decode($row->userData);
+                $user_id = $row->id;
+                if(isset($row->userData->activeOrder) && checkOpenCart($row->userData->activeOrder)) {
+                    $cart_id = $row->userData->activeOrder;
+                } else {
+                    $cart_id =  getOpenCart($user_id);
+                }
+            } else {
+                return array("result" => "user error");
+            }
+            $_SESSION['order'] = $cart_id;
         }
-        $_SESSION['order'] = $cart_id;
+
 
         $query = $conn->query("select ifnull(sum(product_count),0) as productsCount , sum(ifnull(product_cost,0) * ifnull(product_count,0)) as summa from order_details where order_id = $cart_id");
+//        $query = $conn->query("select ifnull(sum(JSON_EXTRACT(details,'$.productCount')),0) as productsCount ,
+//                  sum(ifnull(JSON_EXTRACT(details,'$.product_cost'),0) * ifnull(JSON_EXTRACT(details,'$.product_count'),0))
+//                  as summa from orders WHERE id = $cart_id");
         $result = $query->fetch_object();
         $result->details = new stdClass();
         if ($result->productsCount > 0) {
@@ -46,7 +51,6 @@ function open_cart($user, $hash=null ) {
         }
         return $result;
     } else {
-
         if(isset($_SESSION["cart"])) {
             $count = 0;
             $summa = 0;
@@ -68,6 +72,43 @@ function open_cart($user, $hash=null ) {
         }
         return $_SESSION["cart"];
     }
+}
+
+function getEmptyCart($user_id) {
+    global $conn;
+    $query = $conn->query("SELECT * FROM orders WHERE (SELECT count(*) FROM order_details WHERE order_details.order_id = orders.id) = 0 AND orders.user_id = $user_id;");
+    if($query->num_rows>0) {
+        return $query->fetch_object()->id;
+    } else {
+        return false;
+    }
+}
+
+function createOpenCart($user_id) {
+    global $conn;
+    if($cart_id = getEmptyCart($user_id)) {
+        return $cart_id;
+    } else {
+        $conn->query("INSERT INTO orders (user_id, order_date, status) VALUES ($user_id, CURRENT_TIMESTAMP ,'open')");
+        $cart_id = $conn->insert_id;
+        $conn->commit();
+        return $cart_id;
+    }
+}
+
+function getOpenCart($user_id) {
+    global $conn;
+    $query = $conn->query("SELECT id FROM orders WHERE user_id = $user_id AND status = 'open'");
+    if($query->num_rows>0) {
+        return $query->fetch_object()->id;
+    } else {
+        return createOpenCart($user_id);
+    }
+}
+function checkOpenCart($cart_id) {
+    global $conn;
+    $query = $conn->query("SELECT id FROM oreders WHERE id = $cart_id AND status = 'open'");
+    return $query->num_rows==1;
 }
 
 function add_product($cart, $product) {
@@ -96,6 +137,8 @@ function add_product($cart, $product) {
             "VALUES(" . $_SESSION['order'] . ", $product->id, 1, $product->cost) " .
             "ON DUPLICATE KEY UPDATE product_count = product_count + 1;");
         $conn->commit();
+//        $conn->query("UPDATE orders SET details = JSON_SET('$.product', $product->id,  )");
+//        $conn->commit();
     }
 }
 

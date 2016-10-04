@@ -10,6 +10,7 @@ var cartData;
 var userData;
 var patternEmail = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
 
+
 Number.prototype.formatMoney = function(c, d, t){
     var n = this,
         c = isNaN(c = Math.abs(c)) ? 2 : c,
@@ -49,7 +50,8 @@ $(function () {
     //login
     $.getScript('utils.js');
     $.getScript('ready-generators.js');
-    activateLoginMenu();
+
+
     //fetch required data
     initialFetch();
     promoScreen = generateMainPromoScreen();
@@ -68,28 +70,11 @@ $(function () {
     $(footer).addClass('shadow').css("margin-top", "20px").css("margin-bottom", "62px").appendTo($("footer"));
     //lean modal init screens
     show_usermenu();
+    showLoginForm();
     showRegistration();
     showAccount();
-});
 
-function activateLoginMenu() {
-    $('#loginform').submit(function () {
-        var login = {
-            user: $('#username').val(),
-            password: $('#password').val()
-        };
-        $.ajax({
-            type: 'POST',
-            url: 'login.php',
-            dataType: 'text',
-            data: 'login=' + prepareData(login),
-            success: function () {
-                show_usermenu();
-            }
-        });
-        return false;
-    });
-}
+});
 
 function show_usermenu() {
     $('#signbar').empty();
@@ -156,6 +141,8 @@ function show_usermenu() {
                             data: 'logout',
                             success: function () {
                                 show_usermenu();
+                                refreshCart();
+                                window.location = 'index.php';
                             }
                         });
                     });
@@ -454,20 +441,7 @@ function generateCartFlat() {
         var checkoutFlat = generateCheckoutFlat();
         $(checkoutFlat).appendTo($('#content'));
 
-        // var acc = document.getElementsByClassName("accordion");
-        // var i;
-        //
-        // for (i = 0; i < acc.length; i++) {
-        //     acc[i].onclick = function(){
-        //         $('div.accordion').removeClass("active");
-        //         $('div.accordion').next().removeClass("show");
-        //        // $('div.accordion').next().hide(200);
-        //         $(this).addClass("active");
-        //         $(this).next().addClass("show");
-        //         //$(this).next().show(200);
-        //
-        //     }
-        // }
+
     });
     var summaBoxText = '<span>Итого:</span>';
     $(summaBoxText).appendTo(summaBox).css('font-size','24px');
@@ -492,8 +466,9 @@ function generateCheckoutFlat() {
     $(captionText).text('оформление заказа').appendTo($(caption));
 
     var accPersData = document.createElement('div');
-    $(accPersData).appendTo(checkBody).html("<span style='margin-left:30px'>1.</span>&nbsp; Контактная информация")
-        .addClass('accordion active');
+    $(accPersData).appendTo(checkBody).html("<span style='margin-left:30px'>1.</span>&nbsp; Контактная информация").addClass('accordion active');
+
+
     var accPersDataPanel = getDiv('panel show');
     $(accPersDataPanel).appendTo(checkBody);
     var accPersContent = getDiv('fl-row');
@@ -505,12 +480,34 @@ function generateCheckoutFlat() {
     userfio = generateInputField("Контактное лицо (ФИО)", 'ordfio', false);
     userphone = generateInputField("Контактный телефон:", 'ordtel', false);
     email = generateInputField("E-mail адрес:", 'ordemail', false);
+    passwd = generateInputField("Пароль:", 'ordpasswd', true);
+    rpasswd = generateInputField("Повторите пароль:", 'ordrpasswd', true);
     $(userfio).appendTo($(accPersCol1));
     $(userphone).appendTo($(accPersCol1));
     $(email).appendTo($(accPersCol1));
+    $(passwd).appendTo(accPersCol1);
+    $(rpasswd).appendTo(accPersCol1);
+    userData = $.ajax({
+        url: 'login.php',
+        async: false,
+        method: 'POST',
+        dataType: 'json',
+        data: 'getAccount'
+    }).responseJSON;
+
     var contButton = getDiv('fl-row fl-vcenter fl-hcenter light');
     $(contButton).addClass('magenta-bg').width('155px').height('50px').text('Продолжить').attr('href','#')
-        .css('font-size','18px').css('color','white').appendTo(accPersCol1);
+        .css('font-size','18px').css('color','white').css('margin-left','30px').appendTo(accPersCol1)
+        .on('click', function () {
+            if(checkRegData('#ordfio','#ordemail','#ordtel','#ordpasswd','#ordrpasswd')) {
+                //show_usermenu();
+                refreshCart();
+                $(accPersData).removeClass("active");
+                $(accPersDataPanel).removeClass("show");
+                $(deliveryData).addClass("active");
+                $(deliveryDataPanel).addClass("show");
+            }
+        });
 
     var accPersCol2 = getDiv('fl-col');
     $(accPersCol2).width('390px').css('margin-top','34px').appendTo(accPersContent);
@@ -520,18 +517,94 @@ function generateCheckoutFlat() {
     passwd = generateInputField("Пароль:", 'qepasswd', true);
     $(email).appendTo(accPersCol2);
     $(passwd).appendTo(accPersCol2);
-
+    var loginButton = getDiv('fl-row fl-vcenter fl-hcenter light');
+    $(loginButton).addClass('magenta-bg').width('155px').height('50px').text('Войти').attr('href','#')
+        .css('font-size','18px').css('color','white').css('margin-left','30px').appendTo(accPersCol2)
+        .on('click', function () {
+            var login = {
+                user: $('#qeemail').val(),
+                password: $('#qepasswd').val()
+            };
+            $.ajax({
+                type: 'POST',
+                url: 'login.php',
+                dataType: 'json',
+                data: 'login=' + prepareData(login),
+                success: function (msg) {
+                    if(msg.error==null) {
+                        show_usermenu();
+                        refreshCart();
+                        $(accPersData).removeClass("active");
+                        $(accPersDataPanel).removeClass("show");
+                        $(deliveryData).addClass("active");
+                        $(deliveryDataPanel).addClass("show");
+                    } else {
+                        alert("Ошибка входа!");
+                    }
+                }
+            });
+        });
     var  deliveryData = document.createElement('div');
     $(deliveryData).appendTo(checkBody).html("<span style='margin-left:30px'>2.</span>&nbsp; Информация о доставке").addClass('accordion');
+
     var deliveryDataPanel = getDiv('panel');
-    $(deliveryDataPanel).text('способо доставки').appendTo(checkBody);
+    $(deliveryDataPanel).appendTo(checkBody);
+    var deliveryContainer = getDiv('fl-row');
+    $(deliveryContainer).appendTo(deliveryDataPanel);
+    var deliveryCol1 = getDiv('fl-col');
+    $(deliveryCol1).appendTo(deliveryContainer);
+    var deliveryCol2 = getDiv('fl-col');
+    $(deliveryCol2).appendTo(deliveryContainer);
+    var deliveryCol3 = getDiv('fl-col');
+    $(deliveryCol3).appendTo(deliveryContainer);
+
+    deliveryAddress = document.createElement('div');
+    $(deliveryAddress).text("Адрес доставки").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol1);
+    city = generateInputField("Город:", 'ordcity', false);
+    street = generateInputField("Улица:", 'ordstreet', false);
+    inputDoubleFieldContainer = document.createElement('div');
+    home = generateInputField("Дом", 'ordhome', false);
+    flat = generateInputField("Квартира", 'ordflat', false);
+    $(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
+    $(home).appendTo($(inputDoubleFieldContainer));
+    $(flat).appendTo($(inputDoubleFieldContainer));
+    $(city).appendTo(deliveryCol1);
+    $(street).appendTo(deliveryCol1);
+    $(inputDoubleFieldContainer).appendTo(deliveryCol1);
+
+    deliveryMethods = document.createElement('div');
+    $(deliveryMethods).text("Способ доставки").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol2);
+    var radioData = {
+        name:"badge",
+        content: [{
+            value: "courier",
+            text: "Курьерская доставка с оплатой при получении"
+        }, {
+            value: "rpost",
+            text: "Почта России с наложенным платежом"
+        }, {
+            value: "qpost",
+            text: "Доставка через терминалы QIWI Post"
+        }]
+    };
+    deliveryMethodInput = generateRadioInput(radioData);
+    $(deliveryMethodInput).appendTo(deliveryCol2);
+
+    orderComment = document.createElement('div');
+    $(orderComment).text("Комментарий к заказу").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol3);
 
     var acceptData = document.createElement('div');
     $(acceptData).appendTo(checkBody).html("<span style='margin-left:30px'>3.</span>&nbsp; Подтверждение заказа").addClass('accordion');
+
     var acceptDataPanel = getDiv('panel');
     $(acceptDataPanel).text('подтвердить заказ').appendTo(checkBody);
-
-
+    if(userData!=null)
+    {
+        $(accPersData).removeClass("active");
+        $(accPersDataPanel).removeClass("show");
+        $(deliveryData).addClass("active");
+        $(deliveryDataPanel).addClass("show");
+    }
     return container;
 }
 
@@ -558,7 +631,7 @@ function generateCategoryFlat(categoryId) {
     $(pagesSelect).addClass('category-nav').addClass('fl-row').css('justify-content','flex-end').height('77px').appendTo(catBody);
         var pageSelectText = document.createElement('div');
         $(pageSelectText).text('Страницы').appendTo($(pagesSelect));
-        var pageSelectors = document.createElement('div');
+       //var pageSelectors = document.createElement('div');
     for(var pageI = 1; pageI <= Math.ceil(productsInCategory.prods.length/17); pageI++) {
         var page = document.createElement('a');
         $(page).appendTo(pageSelectText).attr('href','#').text(pageI).attr('np',pageI)
@@ -567,10 +640,7 @@ function generateCategoryFlat(categoryId) {
                 $(".category-nav .active").removeClass('active');
                 $("a[np=" + $(this).attr('np') + "]").addClass('active');
                 productsInCategory.offset = 0 + 17*($(this).attr('np') - 1);
-
                 var startProd = productsInCategory.offset;
-
-
                 var newBodyProds = getCatBody(productsInCategory,
                     productsInCategory.prods.length - 17*($(this).attr('np') - 1) > 17 ? 17 : productsInCategory.prods.length - 17*($(this).attr('np') - 1) );
                 $('#catBodyProds').fadeOut(200, function() {
@@ -838,7 +908,6 @@ function generateProductFlat(product) {
         });
     }
 
-
     var bonusFreeDelivery = productBonus("bonus-car.png","бесплатная доставка", "по всей России");
     var bonusHotLine = productBonus("bonus-man.png","горячая линия","8-800-000-00-00");
     var bonusGift = productBonus("bonus-gift.png","подарки","каждому покупателю");
@@ -947,6 +1016,69 @@ function generatePromoProductDiv(bgimage, double, alignRight, color, promoProd) 
     return promoProductBox;
 }
 
+function checkRegData(usernameId, emailId, telId, passwdId, rpasswdId) {
+    var canRegister = true;
+    if(!patternEmail.test($(emailId).val())) {
+        alert("Введен ошибочный e-mail!")
+        canRegister = false;
+        return false;
+    } else {
+
+        $.ajax({
+            type: 'POST',
+            url: 'login.php',
+            dataType: 'text',
+            async: false,
+            data: 'usercheck=' + encodeURIComponent($(emailId).val()),
+            success: function (msg) {
+                if(msg==true) {
+                    alert('Пользователь с указанным email уже зарегистрирован!')
+                    canRegister = false;
+                }
+            }
+        });
+    }
+    if($(usernameId).val().length < 2) {
+        alert("Укажите своё имя!");
+        canRegister = false;
+        return false;
+    }
+    if($(passwdId).val().length > 0) {
+        if($(passwdId).val().length < 6) {
+            alert("Пароль должен быть не менее 6 символов!");
+            canRegister = false;
+            return false;
+        }
+        if($(passwdId).val() != $(rpasswdId).val()) {
+            alert("Пароли не совпадают!");
+            canRegister = false;
+            return false;
+        }
+        if(canRegister) {
+            var login = {
+                username: $(usernameId).val(),
+                email: $(emailId).val(),
+                tel: $(telId).val(),
+                password: $(rpasswdId).val()
+            };
+            $.ajax({
+                type: 'POST',
+                url: 'login.php',
+                dataType: 'text',
+                async: false,
+                data: 'register=' + prepareData(login),
+                success: function () {
+                    show_usermenu();
+                }
+            });
+            return true;
+        }
+
+    } else {
+        alert("Введите пароль (не менее 6 символов)!")
+    }
+}
+
 function showRegistration() {
     layout = document.createElement('div');
     layoutCaption = document.createElement('div');
@@ -961,77 +1093,80 @@ function showRegistration() {
     $(layoutCol2).addClass("layout-half-col").appendTo($(layoutBody));
     username = generateInputField("Контактное лицо (ФИО)", 'regusername', false);
     email = generateInputField("E-mail адрес:", 'regemail', false);
+    tel = generateInputField("Телефон:", 'regtel', false);
     passwd = generateInputField("Пароль:", 'regpasswd', true);
     rpasswd = generateInputField("Повторите пароль:", 'regrpasswd', true);
     $(username).appendTo($(layoutCol1));
     $(email).appendTo($(layoutCol1));
+    $(tel).appendTo(layoutCol1);
     $(passwd).appendTo($(layoutCol2));
     $(rpasswd).appendTo($(layoutCol2));
 
     regSubmit = document.createElement('a');
-    $(regSubmit).text('Зарегистрироваться').addClass('redbutton').addClass('hidemodal').appendTo($(layoutCol1))
+    $(regSubmit).text('Зарегистрироваться').addClass('redbutton hidemodal').appendTo($(layoutCol1))
         .on('click', function () {
-
-            var canRegister = true;
-            if(!patternEmail.test($('#regemail').val())) {
-                alert("Введен ошибочный e-mail!")
-                canRegister = false;
-                return;
-            } else {
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'login.php',
-                    dataType: 'text',
-                    async: false,
-                    data: 'usercheck=' + encodeURIComponent($('#regemail').val()),
-                    success: function (msg) {
-                        if(msg==true) {
-                            alert('Пользователь с указанным email уже зарегистрирован!')
-                            canRegister = false;
-                        }
-                    }
-                });
-            }
-            if($('#regusername').val().length < 2) {
-                alert("Укажите своё имя!");
-                canRegister = false;
-                return;
-            }
-            if($('#regpasswd').val().length > 0) {
-                if($('#regpasswd').val().length < 6) {
-                    alert("Пароль должен быть не менее 6 символов!");
-                    canRegister = false;
-                    return;
-                }
-                if($('#regpasswd').val() != $('#regrpasswd').val()) {
-                    alert("Пароли не совпадают!");
-                    canRegister = false;
-                    return;
-                }
-                if(canRegister) {
-                    var login = {
-                        username: $('#regusername').val(),
-                        email: $('#regemail').val(),
-                        password: $('#regpasswd').val()
-                    };
-                    $.ajax({
-                        type: 'POST',
-                        url: 'login.php',
-                        dataType: 'text',
-                        async: false,
-                        data: 'register=' + prepareData(login),
-                        success: function () {
-                            show_usermenu();
-                        }
-                    });
-                }
-
-            } else {
-                alert("Введите пароль (не менее 6 символов)!")
-            }
+            checkRegData('#regusername','#regemail','#regtel','#regpasswd','#regrpasswd');
         });
     $(layout).addClass("layout").attr('id', 'regmodal').appendTo("body");
+}
+
+function showLoginForm() {
+
+    var layoutLogin = document.createElement('div');
+    layoutCaption = document.createElement('div');
+    $(layoutCaption).addClass("layout-caption").appendTo($(layoutLogin));
+    layoutCaptionText = document.createElement('h1');
+    $(layoutCaptionText).text("Вход").appendTo($(layoutCaption));
+    layoutBody = document.createElement('div');
+    $(layoutBody).css('margin-top', '30px').addClass("fl-row").appendTo($(layoutLogin));
+    layoutCol1 = document.createElement('div');
+    layoutCol2 = document.createElement('div');
+    $(layoutCol1).addClass("layout-half-col").appendTo($(layoutBody));
+    $(layoutCol2).addClass("layout-half-col").appendTo($(layoutBody));
+    layoutCol1Caption = getDiv("login-cols-caption");
+    $(layoutCol1Caption).text("Зарегистрированный пользователь").appendTo(layoutCol1);
+    layoutCol2Caption = getDiv("login-cols-caption");
+    $(layoutCol2Caption).text("Новый пользователь").appendTo(layoutCol2);
+
+    loginemail = generateInputField("E-mail адрес:", 'loginemail', false);
+    loginpasswd = generateInputField("Пароль:", 'loginpasswd', true);
+    $(loginemail).appendTo($(layoutCol1));
+    $(loginpasswd).appendTo($(layoutCol1));
+    loginSubmit = document.createElement('a');
+    $(loginSubmit).attr('id', 'loginbtn').attr('href','#').addClass("redborderbutton hidemodal").text("Войти").appendTo(layoutCol1)
+        .on('click', function () {
+            var login = {
+                user: $('#loginemail').val(),
+                password: $('#loginpasswd').val()
+            };
+            $.ajax({
+                type: 'POST',
+                url: 'login.php',
+                dataType: 'text',
+                data: 'login=' + prepareData(login),
+                success: function () {
+                    show_usermenu();
+                    refreshCart()
+                }
+            });
+            $("#lean_overlay").trigger("click");
+        });
+    forgotBtn = document.createElement('a');
+    $(forgotBtn).addClass('forgotbtn').attr('href','#').text("Забыли пароль?").appendTo(layoutCol1);
+    regBtn = document.createElement('a');
+    $(regBtn).addClass('redbutton').attr('href','#').text('Зарегистрироваться').appendTo(layoutCol2);
+    $(layoutLogin).addClass('layout').attr('id', 'loginmodal').appendTo("body");
+}
+
+function refreshCart() {
+    cartData = $.ajax({
+        url: 'cart.php',
+        async: false,
+        method: 'POST',
+        dataType: 'json'
+    }).responseJSON;
+    $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
+    $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
 }
 
 function showAccount() {
@@ -1169,10 +1304,7 @@ function showAccount() {
                         url: 'login.php',
                         method: 'POST',
                         dataType: 'json',
-                        data: 'update=' + prepareData(prData),
-                        success: function (msg) {
-                            alert(msg.response);
-                        }
+                        data: 'update=' + prepareData(prData)
                     })
                 }
                 $("#lean_overlay").trigger("click");
@@ -1183,7 +1315,21 @@ function showAccount() {
     $(layout).addClass("layout").attr('id', 'accmodal').appendTo("body");
 }
 
+function generateRadioInput(data) {
+    var radioBlock = document.createElement('div');
+    $(radioBlock).addClass('fl-col');
+    $.each(data.content, function(i, item) {
+        var radioButton = document.createElement('div');
+        $(radioButton).addClass('radio-block').attr('id',data.name + "_" + item.value).appendTo($(radioBlock));
+        var radioInput = document.createElement('input');
+        $(radioInput).attr('name',data.name).attr("value",item.value).attr('type','radio')
+            .attr('id',item.value).appendTo($(radioButton));
+        //if(data.checked) $(radioInput).attr('checked','checked');
+        var radioLabel = document.createElement('label');
+        $(radioLabel).attr('for',item.value).text(item.text).css('color','#0d0b0b')
+            .css('font-size','18px').css('font-weight','lighter').appendTo($(radioButton));
 
-
-
+    });
+    return radioBlock;
+}
 

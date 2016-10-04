@@ -1,17 +1,22 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'dbw.php';
 $c = db_conn();
-
 
 $response = array();
 if(isset($_POST['register'])) {
     $register = json_decode($_POST['register']);
     $s = $c->prepare("INSERT INTO users (login, password, accessLevel, userData) " .
         " VALUES (?, ?, 10, ?)");
-    $s->bind_param("sss",$register->email,md5($register->password),json_encode(array("name"=>$register->username)));
+    $passhash = md5($register->password);
+    $userData = json_encode(array("name"=>$register->username,"tel"=>$register->tel));
+    $email = $register->email;
+    $s->bind_param("sss",$email,$passhash,$userData);
     $s->execute();
     $s->close();
+    $login = array("user"=>$register->email,"password"=>$register->password);
+    doLogin($login);
     $response["result"]="success";
 }
 
@@ -72,18 +77,7 @@ if(isset($_POST['usercheck'])) {
 if(isset($_POST['login'])) {
 	$login = json_decode($_POST['login'],true);
 	$response['trace']['postdata'] = $login;
-	if(checkUser($login)) {
-	    session_destroy();
-        session_start();
-		$response['trace'][] = "user_checked";
-		$hash = md5(generateCode(10));
-		//$response['hash'] = $hash;
-		$_SESSION['hash'] = $hash;
-		$_SESSION['user'] = $login["user"];
-		updateHash($login, $hash);
-	} else {
-		$response['error'][]="user not found or bad password";		
-	}	
+    doLogin($login);
 } else {
 	$response['error'][]="error login data";
 }
@@ -104,7 +98,11 @@ function checkUser($login) {
 	$user = $login["user"];
 	$password = md5($login["password"]);
 	$q = $c->query("select * from users where login = '$user' and password = '$password'");
-	return $q->num_rows > 0;
+	if($q->num_rows > 0) {
+	    return $q->fetch_object()->id;
+    } else {
+        return 0;
+    }
 }
 
 function generateCode($length=6) {
@@ -115,4 +113,47 @@ function generateCode($length=6) {
 		$code .= $chars[mt_rand(0,$clen)];
 	}
 	return $code;
+}
+
+function doLogin($login) {
+    global $c;
+    if($user_id = checkUser($login)) {
+        if(isset($_SESSION["cart"]["productsCount"]) && $_SESSION["cart"]["productsCount"] > 0) {
+            error_log("session product count: " . $_SESSION["cart"]["productsCount"]);
+            $cart_id = createOpenCart($user_id);
+            error_log("new cart id:" . $cart_id);
+            $s = $c->prepare("INSERT INTO order_details VALUES (?,?,?,?)");
+            foreach ($_SESSION["cart"]["details"] as $key => $value) {
+                $s->bind_param("iiid",
+                    $cart_id,
+                    $key,
+                    $value->product_count,
+                    $value->product_cost);
+                $s->execute();
+                error_log("add prodcut: " . $key );
+            }
+            $s->close();
+        } else {
+            $q = $c->query("SELECT * FROM `orders` WHERE `user_id` = $user_id AND status = 'open'");
+            if($q->num_rows>0) {
+                $row = $q->fetch_object();
+                $cart_id = $row->id;
+            } else {
+                $cart_id = createOpenCart($user_id);
+            }
+
+        }
+        session_destroy();
+        session_start();
+        $response['trace'][] = "user_checked";
+        $hash = md5(generateCode(10));
+        //$response['hash'] = $hash;
+        $_SESSION['hash'] = $hash;
+        $_SESSION['user'] = $login["user"];
+        $_SESSION['order'] = $cart_id;
+        error_log("exit_cart_id:" . $cart_id);
+        updateHash($login, $hash);
+    } else {
+        $response['error'][]="user not found or bad password";
+    }
 }
