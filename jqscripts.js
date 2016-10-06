@@ -131,6 +131,11 @@ function show_usermenu() {
                         $('#accstreet').val(userData.userData.street);
                         $('#acchome').val(userData.userData.home);
                         $('#accflat').val(userData.userData.flat);
+
+                        $.each(userData.orders, function(i,item) {
+                            var order = generateAccOrder(item);
+                            $(order).css('margin-bottom','40px').appendTo($('#selfOrdersContent'));
+                        });
                     });
                 $(registerButton).text("Выход").attr('id', '').attr('href', '#')
                     .on('click', function () {
@@ -474,9 +479,9 @@ function generateCheckoutFlat() {
     var accPersContent = getDiv('fl-row');
     $(accPersContent).appendTo(accPersDataPanel);
     var accPersCol1 = getDiv('fl-col');
-    $(accPersCol1).width('390px').css('margin-top','34px').appendTo(accPersContent);
+    $(accPersCol1).width('390px').css('margin-left','30px').css('margin-top','34px').appendTo(accPersContent);
     var accPersCol1Caption = getDiv('magenta-text bold');
-    $(accPersCol1Caption).text("Для новых покупателей").css('margin-left','30px').css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol1);
+    $(accPersCol1Caption).text("Для новых покупателей").css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol1);
     userfio = generateInputField("Контактное лицо (ФИО)", 'ordfio', false);
     userphone = generateInputField("Контактный телефон:", 'ordtel', false);
     email = generateInputField("E-mail адрес:", 'ordemail', false);
@@ -497,7 +502,7 @@ function generateCheckoutFlat() {
 
     var contButton = getDiv('fl-row fl-vcenter fl-hcenter light');
     $(contButton).addClass('magenta-bg').width('155px').height('50px').text('Продолжить').attr('href','#')
-        .css('font-size','18px').css('color','white').css('margin-left','30px').appendTo(accPersCol1)
+        .css('font-size','18px').css('color','white').appendTo(accPersCol1)
         .on('click', function () {
             if(checkRegData('#ordfio','#ordemail','#ordtel','#ordpasswd','#ordrpasswd')) {
                 //show_usermenu();
@@ -510,16 +515,18 @@ function generateCheckoutFlat() {
         });
 
     var accPersCol2 = getDiv('fl-col');
-    $(accPersCol2).width('390px').css('margin-top','34px').appendTo(accPersContent);
+    $(accPersCol2).width('390px').css('margin-top','34px').css('margin-left','75px').appendTo(accPersContent);
     var accPersCol2Caption = getDiv('magenta-text bold');
-    $(accPersCol2Caption).text("Быстрый вход").css('margin-left','30px').css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol2);
+    $(accPersCol2Caption).text("Быстрый вход").css('margin-bottom','20px').css('font-size','18px').appendTo(accPersCol2);
     email = generateInputField("E-mail адрес:", 'qeemail', false);
     passwd = generateInputField("Пароль:", 'qepasswd', true);
     $(email).appendTo(accPersCol2);
     $(passwd).appendTo(accPersCol2);
+    var loginArea = getDiv('fl-row');
+    $(loginArea).css('align-items','center').appendTo(accPersCol2);
     var loginButton = getDiv('fl-row fl-vcenter fl-hcenter light');
-    $(loginButton).addClass('magenta-bg').width('155px').height('50px').text('Войти').attr('href','#')
-        .css('font-size','18px').css('color','white').css('margin-left','30px').appendTo(accPersCol2)
+    $(loginButton).addClass('magenta-bg').width('105px').height('50px').text('Войти').attr('href','#')
+        .css('font-size','18px').css('color','white').appendTo(loginArea)
         .on('click', function () {
             var login = {
                 user: $('#qeemail').val(),
@@ -544,6 +551,11 @@ function generateCheckoutFlat() {
                 }
             });
         });
+    var recoveryPass = document.createElement('a');
+    $(recoveryPass).appendTo(loginArea).text('Восстановить пароль').css('color','#343434')
+        .css('font-size','14px').css('font-weight','lighter').attr('href','#')
+        .css('margin-left','23px');
+
     var  deliveryData = document.createElement('div');
     $(deliveryData).appendTo(checkBody).html("<span style='margin-left:30px'>2.</span>&nbsp; Информация о доставке").addClass('accordion');
 
@@ -552,52 +564,100 @@ function generateCheckoutFlat() {
     var deliveryContainer = getDiv('fl-row');
     $(deliveryContainer).appendTo(deliveryDataPanel);
     var deliveryCol1 = getDiv('fl-col');
-    $(deliveryCol1).appendTo(deliveryContainer);
+    $(deliveryCol1).css('margin-left','30px').width('390px').appendTo(deliveryContainer);
     var deliveryCol2 = getDiv('fl-col');
-    $(deliveryCol2).appendTo(deliveryContainer);
+    $(deliveryCol2).css('margin-left','54px').appendTo(deliveryContainer);
     var deliveryCol3 = getDiv('fl-col');
-    $(deliveryCol3).appendTo(deliveryContainer);
+    $(deliveryCol3).css('width','400px').css('margin-left','50px').appendTo(deliveryContainer);
 
-    deliveryAddress = document.createElement('div');
-    $(deliveryAddress).text("Адрес доставки").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol1);
+    deliveryAddress = getDiv('subtitle');
+    $(deliveryAddress).text("Адрес доставки").appendTo(deliveryCol1);
     city = generateInputField("Город:", 'ordcity', false);
     street = generateInputField("Улица:", 'ordstreet', false);
-    inputDoubleFieldContainer = document.createElement('div');
-    home = generateInputField("Дом", 'ordhome', false);
-    flat = generateInputField("Квартира", 'ordflat', false);
-    $(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
-    $(home).appendTo($(inputDoubleFieldContainer));
-    $(flat).appendTo($(inputDoubleFieldContainer));
-    $(city).appendTo(deliveryCol1);
+    inputDoubleFieldContainer = getDiv('fl-row fl-space');
+    var home = generateInputField("Дом", 'ordhome', false);
+    var flat = generateInputField("Квартира", 'ordflat', false);
+    //$(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
+    $(home).width('170px').appendTo(inputDoubleFieldContainer);
+    $(flat).width('170px').appendTo(inputDoubleFieldContainer);
+    $(city).css('margin-top','22px').appendTo(deliveryCol1);
     $(street).appendTo(deliveryCol1);
-    $(inputDoubleFieldContainer).appendTo(deliveryCol1);
+    $(inputDoubleFieldContainer).width('390px').appendTo(deliveryCol1);
+    var deliveryContinue = document.createElement('a');
+    $(deliveryContinue).addClass('redbutton').appendTo(deliveryCol1).attr('href','#')
+        .css('margin-top','32px').text("Продолжить").css('font-weight','lighter')
+        .css('font-size','18px').on('click',function() {
+            $(deliveryData).removeClass("active");
+            $(deliveryDataPanel).removeClass("show");
+            $(acceptData).addClass("active");
+            $(acceptDataPanel).addClass("show");
+    });
 
-    deliveryMethods = document.createElement('div');
-    $(deliveryMethods).text("Способ доставки").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol2);
+    deliveryMethods = getDiv('subtitle');
+    $(deliveryMethods).text("Способ доставки").appendTo(deliveryCol2);
     var radioData = {
         name:"badge",
         content: [{
             value: "courier",
-            text: "Курьерская доставка с оплатой при получении"
+            text: "Курьерская доставка<br> с оплатой при получении"
         }, {
             value: "rpost",
-            text: "Почта России с наложенным платежом"
+            text: "Почта России<br> с наложенным платежом"
         }, {
             value: "qpost",
-            text: "Доставка через терминалы QIWI Post"
+            text: "Доставка через терминалы<br> QIWI Post"
         }]
     };
     deliveryMethodInput = generateRadioInput(radioData);
-    $(deliveryMethodInput).appendTo(deliveryCol2);
+    $(deliveryMethodInput).css('margin-top','40px').appendTo(deliveryCol2);
 
-    orderComment = document.createElement('div');
-    $(orderComment).text("Комментарий к заказу").addClass('magenta-text').css('font-size','18px').css('font-weight','bold').appendTo(deliveryCol3);
+    orderComment = getDiv('subtitle');
+    $(orderComment).text("Комментарий к заказу").appendTo(deliveryCol3);
+    var orderCommentArea = generateInputField("Введите ваш комментарий:","ordcomment",false,true);
+    $(orderCommentArea).appendTo(deliveryCol3);
+    $(orderCommentArea).children('textarea')
+        .height('213px').width('355px').css('resize','none')
+        .css('background-color','#e9e9e9').css('font-size','16px')
+        .css('font-weight','lighter').css('padding-left','16px')
+        .css('border','none');
+
 
     var acceptData = document.createElement('div');
     $(acceptData).appendTo(checkBody).html("<span style='margin-left:30px'>3.</span>&nbsp; Подтверждение заказа").addClass('accordion');
 
-    var acceptDataPanel = getDiv('panel');
-    $(acceptDataPanel).text('подтвердить заказ').appendTo(checkBody);
+    var acceptDataPanel = getDiv('panel fl-col');
+    $(acceptDataPanel).appendTo(checkBody);
+    var acceptDetail = getDiv('fl-col');
+    $(acceptDetail).css('margin-left','30px').appendTo(acceptDataPanel);
+    var acceptDetailCaption = getDiv('subtitle');
+    $(acceptDetailCaption).text("Состав заказа:").appendTo(acceptDetail);
+    var detailsTable  = getDiv('fl-col');
+    $(detailsTable).addClass('details-table').appendTo(acceptDetail);
+    var detailsTableCaption = getDiv('fl-row');
+    $(detailsTableCaption).appendTo(detailsTable);
+
+    var product = document.createElement('span');
+    $(product).text('Товар').appendTo(detailsTableCaption);
+    var pcost = document.createElement('span');
+    $(pcost).text('Стоимость').appendTo(detailsTableCaption);
+    var pcount = document.createElement('span');
+    $(pcount).text('Количество').appendTo(detailsTableCaption);
+    var psum = document.createElement('span');
+    $(psum).text('Итого').appendTo(detailsTableCaption);
+
+    $.each(userData.orders[userData.current].details, function(i, item) {
+        var row = generateOrderProd(item);
+        $(row).appendTo(detailsTable);
+    });
+
+    var itogoRow = getDiv('fl-row');
+    $(itogoRow).css('justify-content','flex-end').appendTo(detailsTable);
+    var itogoText = document.createElement('span');
+    $(itogoText).text("Итого:").addClass('bold italic').css('font-size','24px').appendTo(itogoRow);
+    var itogoSumma = document.createElement('span');
+    $(itogoSumma).addClass('bold italic').css('font-size','24px').appendTo(itogoRow)
+        .text(parseInt(userData.orders[userData.current].summa).formatMoney(0,","," "));
+
     if(userData!=null)
     {
         $(accPersData).removeClass("active");
@@ -605,6 +665,19 @@ function generateCheckoutFlat() {
         $(deliveryData).addClass("active");
         $(deliveryDataPanel).addClass("show");
     }
+    return container;
+}
+
+function generateOrderProd(prod) {
+    var container = getDiv('fl-row');
+    var c1 = document.createElement('span');
+    var c2 = document.createElement('span');
+    var c3 = document.createElement('span');
+    var c4 = document.createElement('span');
+    $(c1).text(prod.name).appendTo(container);
+    $(c2).text(parseInt(prod.product_cost).formatMoney(0,","," ")).appendTo(container);
+    $(c3).text(prod.product_count).appendTo(container);
+    $(c4).text(parseInt(prod.product_cost * prod.product_count).formatMoney(0,","," ")).appendTo(container);
     return container;
 }
 
@@ -715,11 +788,7 @@ function getCatBody(products, count) {
         }
         return container;
     }
-
-
-
     return container;
-
 }
 
 function generateProductFlat(product) {
@@ -1114,14 +1183,14 @@ function showLoginForm() {
 
     var layoutLogin = document.createElement('div');
     layoutCaption = document.createElement('div');
-    $(layoutCaption).addClass("layout-caption").appendTo($(layoutLogin));
+    $(layoutCaption).addClass("layout-caption").appendTo(layoutLogin);
     layoutCaptionText = document.createElement('h1');
-    $(layoutCaptionText).text("Вход").appendTo($(layoutCaption));
+    $(layoutCaptionText).text("Вход").appendTo(layoutCaption);
     layoutBody = document.createElement('div');
-    $(layoutBody).css('margin-top', '30px').addClass("fl-row").appendTo($(layoutLogin));
+    $(layoutBody).css('margin-top', '30px').addClass("fl-row").appendTo(layoutLogin);
     layoutCol1 = document.createElement('div');
     layoutCol2 = document.createElement('div');
-    $(layoutCol1).addClass("layout-half-col").appendTo($(layoutBody));
+    $(layoutCol1).css('margin-left','30px').addClass("layout-half-col").appendTo(layoutBody);
     $(layoutCol2).addClass("layout-half-col").appendTo($(layoutBody));
     layoutCol1Caption = getDiv("login-cols-caption");
     $(layoutCol1Caption).text("Зарегистрированный пользователь").appendTo(layoutCol1);
@@ -1194,28 +1263,28 @@ function showAccount() {
     userfio = generateInputField("Контактное лицо (ФИО)", 'accfio', false);
     userphone = generateInputField("Контактный телефон:", 'acctel', false);
     email = generateInputField("E-mail адрес:", 'accemail', false);
-    $(userfio).appendTo($(layoutCol1));
-    $(userphone).appendTo($(layoutCol1));
-    $(email).appendTo($(layoutCol1));
+    $(userfio).css('margin-bottom','19px').appendTo($(layoutCol1));
+    $(userphone).css('margin-bottom','19px').appendTo($(layoutCol1));
+    $(email).css('margin-bottom','19px').appendTo($(layoutCol1));
     deliveryAddress = document.createElement('div');
-    $(deliveryAddress).text("Адрес доставки").addClass('subtitle').appendTo($(layoutCol1));
+    $(deliveryAddress).text("Адрес доставки").addClass('subtitle').appendTo(layoutCol1);
     city = generateInputField("Город:", 'acccity', false);
     street = generateInputField("Улица:", 'accstreet', false);
     inputDoubleFieldContainer = document.createElement('div');
     home = generateInputField("Дом", 'acchome', false);
     flat = generateInputField("Квартира", 'accflat', false);
-    $(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
+    $(inputDoubleFieldContainer).css('margin-bottom','19px').addClass('fl-row').addClass('fl-space');
     $(home).appendTo($(inputDoubleFieldContainer));
     $(flat).appendTo($(inputDoubleFieldContainer));
-    $(city).appendTo($(layoutCol1));
-    $(street).appendTo($(layoutCol1));
+    $(city).css('margin-bottom','19px').appendTo($(layoutCol1));
+    $(street).css('margin-bottom','19px').appendTo($(layoutCol1));
     $(inputDoubleFieldContainer).appendTo($(layoutCol1));
     changePasswod = document.createElement('div');
     $(changePasswod).text("Изменение пароля").addClass('subtitle').appendTo($(layoutCol1));
     passw = generateInputField("Введите новый пароль", 'accpassw', true);
     rpassw = generateInputField("Повторите новый пароль:", 'accrpassw', true);
-    $(passw).appendTo($(layoutCol1));
-    $(rpassw).appendTo($(layoutCol1));
+    $(passw).css('margin-bottom','19px').appendTo($(layoutCol1));
+    $(rpassw).css('margin-bottom','19px').appendTo($(layoutCol1));
     $(city).children('input').on('change', function() {cityChanged = true;});
     $(street).children('input').on('change', function() {streetChanged = true;});
     $(home).children('input').on('change', function() {homeChanged = true;});
@@ -1226,7 +1295,7 @@ function showAccount() {
     $(passw).children('input').on('change', function() {passChanged = true;});
     $(rpassw).children('input').on('change', function() {passChanged = true;})
     saveSubmit = document.createElement('a');
-    $(saveSubmit).addClass('redbutton').addClass('hidemodal').appendTo($(layoutCol1));
+    $(saveSubmit).addClass('redbutton').addClass('hidemodal').appendTo(layoutCol1);
     saveSubmitText = document.createElement('span');
     $(saveSubmitText).text('Сохранить').appendTo(saveSubmit);
     $(saveSubmit).css("width", "134px")
@@ -1311,7 +1380,11 @@ function showAccount() {
             }
         });
     selfOrders = document.createElement('div');
-    $(selfOrders).text("Ваши заказы").addClass('subtitle').appendTo($(layoutCol2));
+    $(selfOrders).text("Ваши заказы").addClass('subtitle').appendTo(layoutCol2);
+    selfOrdersContent = getDiv("fl-col");
+    $(selfOrdersContent).css('margin-left','30px').css('overflow-y','auto').css('max-height','800px')
+        .css('margin-right','25px').attr('id','selfOrdersContent').appendTo(layoutCol2);
+
     $(layout).addClass("layout").attr('id', 'accmodal').appendTo("body");
 }
 
@@ -1326,10 +1399,47 @@ function generateRadioInput(data) {
             .attr('id',item.value).appendTo($(radioButton));
         //if(data.checked) $(radioInput).attr('checked','checked');
         var radioLabel = document.createElement('label');
-        $(radioLabel).attr('for',item.value).text(item.text).css('color','#0d0b0b')
-            .css('font-size','18px').css('font-weight','lighter').appendTo($(radioButton));
+        $(radioLabel).attr('for',item.value).html(item.text).css('color','#000')
+            .css('font-size','16px').css('font-weight','lighter')
+            .appendTo($(radioButton));
 
     });
     return radioBlock;
 }
 
+function generateAccOrder(order) {
+    var container = getDiv('acc-order-block');
+    var leftCol = getDiv();
+    var rightCol = getDiv();
+    $(leftCol).appendTo(container);
+    $(rightCol).appendTo(container);
+    var status = document.createElement('span');
+    var orderStatus;
+    switch (order.status) {
+        case "0" : orderStatus = "Формируется";
+            break;
+        case "1" : orderStatus = "Принят";
+            break;
+        case "2": orderStatus = "Отгружен";
+            break;
+        case "3": orderStatus = "Ожидает доставки";
+            break;
+        case "4": orderStatus = "Доставлен";
+            break;
+        case "5": orderStatus = "Отмена";
+            break;
+    }
+    $(status).text(orderStatus).appendTo(rightCol);
+    var number = getDiv();
+    $(number).appendTo(leftCol).text("№" + order.id);
+    var summa = getDiv();
+    $(summa).appendTo(leftCol).text("("+ parseInt(order.summa).formatMoney(0,"."," ")+")");
+    var parseDate = order.order_date.split(" ");
+    var date = parseDate[0].split("-");
+    var time = parseDate[1].split(":");
+
+    var orderDate = "<div>" + date[2] + "." + date[1] + "." + date[0] + " в " + time[0] + ":" + time[1] + "</div>";
+    $(orderDate).appendTo(leftCol);
+
+    return container;
+}

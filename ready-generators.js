@@ -369,7 +369,7 @@ function generateFooter() {
     var upImage = document.createElement('img');
     $(upText).text("Наверх")
         .appendTo($(upBlock));
-    ;
+
     $(upImage).attr("src", "img/totop.png")
         .css("margin-left", "5px")
         .appendTo($(upBlock));
@@ -377,10 +377,14 @@ function generateFooter() {
     return footerContainer;
 }
 
-function generateInputField(caption, name, password) {
+function generateInputField(caption, name, password, text) {
     var inputFieldContainer = document.createElement('div');
     var inputFieldCaption = document.createElement('label');
-    var inputField = document.createElement('input');
+    if(text) {
+        var inputField = document.createElement('textarea');
+    } else {
+        var inputField = document.createElement('input');
+    }
     if (password == true) {
         $(inputField).attr('type', 'password');
     }

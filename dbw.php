@@ -89,7 +89,7 @@ function createOpenCart($user_id) {
     if($cart_id = getEmptyCart($user_id)) {
         return $cart_id;
     } else {
-        $conn->query("INSERT INTO orders (user_id, order_date, status) VALUES ($user_id, CURRENT_TIMESTAMP ,'open')");
+        $conn->query("INSERT INTO orders (user_id, order_date, status) VALUES ($user_id, CURRENT_TIMESTAMP ,0)");
         $cart_id = $conn->insert_id;
         $conn->commit();
         return $cart_id;
@@ -98,7 +98,7 @@ function createOpenCart($user_id) {
 
 function getOpenCart($user_id) {
     global $conn;
-    $query = $conn->query("SELECT id FROM orders WHERE user_id = $user_id AND status = 'open'");
+    $query = $conn->query("SELECT id FROM orders WHERE user_id = $user_id AND status = 0");
     if($query->num_rows>0) {
         return $query->fetch_object()->id;
     } else {
@@ -107,7 +107,7 @@ function getOpenCart($user_id) {
 }
 function checkOpenCart($cart_id) {
     global $conn;
-    $query = $conn->query("SELECT id FROM oreders WHERE id = $cart_id AND status = 'open'");
+    $query = $conn->query("SELECT id FROM oreders WHERE id = $cart_id AND status = 0");
     return $query->num_rows==1;
 }
 

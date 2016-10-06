@@ -25,10 +25,28 @@ if(isset($_POST['getAccount'])) {
     if(isset($_SESSION['hash']) && isset($_SESSION['user'])) {
         $user = $_SESSION['user'];
         $hash = $_SESSION['hash'];
-        $q = $c->query("SELECT login, userData FROM users WHERE login = '$user' AND hash = '$hash'");
+        error_log("user: " . $user . ", hash:" . $hash);
+        $q = $c->query("SELECT id, login, userData FROM users WHERE login = '$user' AND hash = '$hash'");
         if($q->num_rows==1) {
             $result = $q->fetch_object();
             $result->userData = json_decode($result->userData);
+            $q = $c->query("SELECT orders.id, orders.order_date, orders.status, sum(product_count) as prod_count," .
+                " sum(product_cost*product_count) as summa FROM orders, order_details WHERE user_id=" . $result->id .
+                " AND orders.id = order_details.order_id GROUP BY order_id;");
+            $result->orders = array();
+            $result->current = $_SESSION['order'];
+            while($order = $q->fetch_object()) {
+                $qdetails = $c->query("SELECT order_details.*, products.name FROM order_details, products WHERE order_id = " . $order->id . " AND product_id = products.id");
+                $order->details = array();
+
+                $summa = 0;
+                while($qres = $qdetails->fetch_object()) {
+                    $order->details[] = $qres;
+                    $summa += $qres->product_cost * $qres->product_count;
+                }
+                $order->summa  = $summa;
+                $result->orders[$order->id] = $order;
+            }
             echo json_encode($result);
         } else {
             echo json_encode(array("result"=>"error"));
@@ -134,7 +152,7 @@ function doLogin($login) {
             }
             $s->close();
         } else {
-            $q = $c->query("SELECT * FROM `orders` WHERE `user_id` = $user_id AND status = 'open'");
+            $q = $c->query("SELECT * FROM `orders` WHERE `user_id` = $user_id AND status = 0");
             if($q->num_rows>0) {
                 $row = $q->fetch_object();
                 $cart_id = $row->id;
