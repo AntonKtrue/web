@@ -591,6 +591,9 @@ function generateCheckoutFlat() {
             $(deliveryDataPanel).removeClass("show");
             $(acceptData).addClass("active");
             $(acceptDataPanel).addClass("show");
+        $('#infoName').text("asdfdsafsdaf");
+        $('#infoHome').text("23");
+        $('#infoFlat').text("234");
     });
 
     deliveryMethods = getDiv('subtitle');
@@ -661,7 +664,7 @@ function generateCheckoutFlat() {
         .text(parseInt(userData.orders[userData.current].summa).formatMoney(0,","," "));
 
     var deliveryInfo  = getDiv('fl-col');
-    $(deliveryInfo).appendTo(acceptDataPanel);
+    $(deliveryInfo).css('margin-left','30px').appendTo(acceptDataPanel);
     var deliveryCaption = getDiv('subtitle');
     $(deliveryCaption).text('Доставка:').appendTo(deliveryInfo);
     var deliveryInfoContent = getDiv('fl-row');
@@ -673,8 +676,26 @@ function generateCheckoutFlat() {
     $(deliveryInfoCol2).appendTo(deliveryInfoContent);
     $(deliveryInfoCol3).appendTo(deliveryInfoContent);
 
-
-
+    var deliveryInfoName = generateLabelField("Контактное лицо (ФИО):", "infoName");
+    var deliveryInfoTel = generateLabelField("Контактный телефон:","infoTel");
+    var deliveryInfoEmail = generateLabelField("E-mail","infoEmail");
+    var deliveryInfoCity = generateLabelField("Город:","infoCity");
+    var deliveryInfoStreet = generateLabelField("Улица:","infoStreet");
+    var deliveryInfoHome = generateLabelField("Дом:", "infoHome");
+    var deliveryInfoFlat = generateLabelField("Квартира", "infoFlat");
+    var deliveryInfoMethod = generateLabelField("Способ доставки:", "infoMethod");
+    var deliveryInfoComment = generateLabelField("Комментарий к заказу:","infoComment");
+    $(deliveryInfoName).appendTo(deliveryInfoCol1);
+    $(deliveryInfoTel).appendTo(deliveryInfoCol1);
+    $(deliveryInfoEmail).appendTo(deliveryInfoCol1);
+    $(deliveryInfoCity).appendTo(deliveryInfoCol2);
+    $(deliveryInfoStreet).appendTo(deliveryInfoCol2);
+    var homeBox = getDiv('fl-row fl-space');
+    $(homeBox).appendTo(deliveryInfoCol2);
+    $(deliveryInfoHome).appendTo(homeBox);
+    $(deliveryInfoFlat).appendTo(homeBox);
+    $(deliveryInfoMethod).appendTo(deliveryInfoCol3);
+    $(deliveryInfoComment).appendTo(deliveryInfoCol3);
 
 
     if(userData!=null)
@@ -684,6 +705,15 @@ function generateCheckoutFlat() {
         $(deliveryData).addClass("active");
         $(deliveryDataPanel).addClass("show");
     }
+    return container;
+}
+
+function generateLabelField(text, name) {
+    var container = getDiv('fl-col');
+    var caption = getDiv('fl-row');
+    var content = getDiv('fl-row');
+    $(caption).text(text).appendTo(container);
+    $(content).attr('id',name).appendTo(container);
     return container;
 }
 
