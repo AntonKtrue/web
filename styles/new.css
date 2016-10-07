@@ -713,7 +713,7 @@ input[type="radio"]:checked + label {
 .details-table{
 }
 .details-table > div > span:nth-child(1) {
-	width: 540px;
+	width: 585px;
 }
 .details-table > div > span:nth-child(2) {
 	width: 200px;
@@ -765,4 +765,16 @@ input[type="radio"]:checked + label {
 	color: #000;
 	font-weight: bold;
 	font-style: italic;
+}
+
+.delivery-info {
+}
+.delivery-info > div:nth-child(1) {
+	width: 265px;
+}
+.delivery-info > div:nth-child(2) {
+	width: 335px;
+}
+.delivery-info > div:nth-child(3) {
+	width: 510px;
 }

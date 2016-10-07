@@ -651,12 +651,31 @@ function generateCheckoutFlat() {
     });
 
     var itogoRow = getDiv('fl-row');
-    $(itogoRow).css('justify-content','flex-end').appendTo(detailsTable);
+    $(itogoRow).css('justify-content','flex-end').css('margin-right','70px').appendTo(acceptDataPanel)
+        .height('110px').css('align-items','center');
     var itogoText = document.createElement('span');
-    $(itogoText).text("Итого:").addClass('bold italic').css('font-size','24px').appendTo(itogoRow);
+    $(itogoText).text("Итого:").addClass('bold italic').css('font-size','24px').css('margin-right','40px')
+        .appendTo(itogoRow);
     var itogoSumma = document.createElement('span');
     $(itogoSumma).addClass('bold italic').css('font-size','24px').appendTo(itogoRow)
         .text(parseInt(userData.orders[userData.current].summa).formatMoney(0,","," "));
+
+    var deliveryInfo  = getDiv('fl-col');
+    $(deliveryInfo).appendTo(acceptDataPanel);
+    var deliveryCaption = getDiv('subtitle');
+    $(deliveryCaption).text('Доставка:').appendTo(deliveryInfo);
+    var deliveryInfoContent = getDiv('fl-row');
+    $(deliveryInfoContent).addClass('delivery-info').appendTo(deliveryInfo);
+    var deliveryInfoCol1 = getDiv('fl-col');
+    var deliveryInfoCol2 = getDiv('fl-col');
+    var deliveryInfoCol3 = getDiv('fl-col');
+    $(deliveryInfoCol1).appendTo(deliveryInfoContent);
+    $(deliveryInfoCol2).appendTo(deliveryInfoContent);
+    $(deliveryInfoCol3).appendTo(deliveryInfoContent);
+
+
+
+
 
     if(userData!=null)
     {
