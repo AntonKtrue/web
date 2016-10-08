@@ -1,4 +1,6 @@
 <?php
+session_start();
+if(!isset($_SESSION["admin"])) die();
 require_once("dbw.php");
 
 

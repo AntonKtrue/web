@@ -474,10 +474,83 @@ input[type="radio"]:checked + label {
 	background-size: auto 148px;
 	background-repeat: no-repeat;
 	display: flex;
-	flex-flow: row-nowrap;
+	flex-flow: row nowrap;
 	align-items: center;
 	justify-content: center;
 	
 }
 
+.user-info {
+	display: flex;
+	margin-right: 20px;
+	margin-left: 20px;
+	background-color: white;
+	flex-flow: column nowrap;
+	border: 1px solid #dee1e2;
+	border-radius: 2px;
+}
+.user-info > div:first-child {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	padding-left: 23px;
+	color: #95a5a6;
+	font-size: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
+	border-bottom: 1px solid #dee1e2;
+	height: 46px;
+}
+.user-info > div:not(:first-child) {
+	display: flex;
+	flex-flow: row nowrap;
+	padding-left: 18px;
+	padding-top: 24px;
 
+}
+/* columns */
+.user-info > div:not(:first-child) > div {
+	display: flex;
+	flex-flow: column nowrap;
+}
+.user-info > div:not(:first-child) > div:not(:first-child) {
+	margin-left: 24px;
+}
+/*label fields */
+.user-info > div:not(:first-child) > div > div {
+	height: 65px;
+}
+
+.user-info > div:not(:first-child) > div > div.fl-col >div:first-child {
+	color: #999999;
+	font-weight: lighter;
+	font-size: 14px;
+}
+
+.user-info > div:not(:first-child) > div > div.fl-col >div:last-child {
+	color: #0b0b0b;
+	font-weight: lighter;
+	font-size: 18px;
+	width: 234px;
+	padding-left: 5px;
+	height: 25px;
+	border: 1px solid #dee1e2;
+}
+.user-info > div:not(:first-child) > div > div.fl-row > div {
+	width: 80px;
+}
+.user-info > div:not(:first-child) > div > div.fl-row > div >div:first-child {
+	color: #999999;
+	font-weight: lighter;
+	font-size: 14px;
+}
+
+.user-info > div:not(:first-child) > div > div.fl-row > div >div:last-child {
+	color: #0b0b0b;
+	font-weight: lighter;
+	font-size: 18px;
+	width: 42px;
+	padding-left: 5px;
+	height: 25px;
+	border: 1px solid #dee1e2;
+}

@@ -131,7 +131,7 @@ function show_usermenu() {
                         $('#accstreet').val(userData.userData.street);
                         $('#acchome').val(userData.userData.home);
                         $('#accflat').val(userData.userData.flat);
-
+                        $('#selfOrdersContent').empty();
                         $.each(userData.orders, function(i,item) {
                             var order = generateAccOrder(item);
                             $(order).css('margin-bottom','40px').appendTo($('#selfOrdersContent'));
@@ -158,6 +158,13 @@ function show_usermenu() {
             activateLeanModal();
         }
     });
+    userData = $.ajax({
+        url: 'login.php',
+        async: false,
+        method: 'POST',
+        dataType: 'json',
+        data: 'getAccount'
+    }).responseJSON;
 }
 
 function generateNavigationBar() {		//Генерация панели навигации //TODO доделать функцию выделения выбранного раздела, доделать анимацию при увеличении количества пунктов категорий
@@ -267,6 +274,15 @@ function generateCategories() { //TODO доделать прокрутку
     return categoriesLine;
 }
 function generateCartFlat() {
+
+    userData = $.ajax({
+        url: 'login.php',
+        async: false,
+        method: 'POST',
+        dataType: 'json',
+        data: 'getAccount'
+    }).responseJSON;
+
     var container = document.createElement('div');
     var caption = document.createElement('div');
     var cartBody = document.createElement('div');
@@ -437,17 +453,35 @@ function generateCartFlat() {
     });
 
     var summaBox = document.createElement('div');
-    var makeOrderButton = document.createElement('a');
     $(summaBox).addClass('fl-row').addClass('fl-space').css('align-items','flex-end').addClass('bold italic').css('color','black').appendTo(rightBlock);
-    $(makeOrderButton).addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter').css('font-size','20px').css('font-weight','bold')
-        .height('49px').width('292px').addClass('magenta-bg').css('color','white').text('Оформить заказ').appendTo(rightBlock)
-        .attr('href','#').css('text-decoration','none').on('click',function(){
-        prepareFlat();
-        var checkoutFlat = generateCheckoutFlat();
-        $(checkoutFlat).appendTo($('#content'));
+
+    if(cartData.productsCount) {
+        var makeOrderButton = document.createElement('a');
+        $(makeOrderButton).addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter').css('font-size','20px').css('font-weight','bold')
+            .height('49px').width('292px').addClass('magenta-bg')
+            .css('color','white').text('Оформить заказ').appendTo(rightBlock)
+            .attr('href','#').css('text-decoration','none').on('click',function(){
+            prepareFlat();
+            var checkoutFlat = generateCheckoutFlat();
+            $(checkoutFlat).appendTo($('#content'));
+
+            var deliveryContent = generateDeliveryContent();
+            $(deliveryContent).appendTo($('#deliveryDataPanel'));
+            var acceptContent = generateAcceptContent();
+            $(acceptContent).appendTo($('#acceptDataPanel'))
 
 
-    });
+            if(userData == null) {
+                var accPersContent = generateAccPersContent();
+                $(accPersContent).appendTo($('#accPersDataPanel'));
+                $('#accPersData').addClass("active");
+                $('#accPersDataPanel').addClass("show");
+            } else {
+                showDeliveryData();
+            }
+
+        });
+    }
     var summaBoxText = '<span>Итого:</span>';
     $(summaBoxText).appendTo(summaBox).css('font-size','24px');
     var summaBoxSumma = document.createElement('span');
@@ -456,26 +490,32 @@ function generateCartFlat() {
     return container;
 }
 
+function showDeliveryData() {
+    if(userData != null && userData.userData != null) {
+        if (userData.userData.city != null) {
+            $('#ordcity').val(userData.userData.city);
+        }
+        if (userData.userData.street != null) {
+            $('#ordstreet').val(userData.userData.street);
+        }
+        if (userData.userData.home != null) {
+            $('#ordhome').val(userData.userData.home);
+        }
+        if (userData.userData.flat != null) {
+            $('#ordflat').val(userData.userData.flat);
+        }
+    }
+    $('#deliveryData').addClass("active");
+    $('#deliveryDataPanel').addClass("show");
+}
+
 function getDiv(classes) {
     var div = document.createElement('div');
     if(classes) $(div).addClass(classes);
     return div;
 }
 
-function generateCheckoutFlat() {
-    var container = getDiv('fl-col products-container');
-    var caption = getDiv('flat-caption'); $(caption).appendTo(container);
-    var checkBody = getDiv();
-    $(checkBody).appendTo(container);
-    var captionText = document.createElement('h1');
-    $(captionText).text('оформление заказа').appendTo($(caption));
-
-    var accPersData = document.createElement('div');
-    $(accPersData).appendTo(checkBody).html("<span style='margin-left:30px'>1.</span>&nbsp; Контактная информация").addClass('accordion active');
-
-
-    var accPersDataPanel = getDiv('panel show');
-    $(accPersDataPanel).appendTo(checkBody);
+function generateAccPersContent() {
     var accPersContent = getDiv('fl-row');
     $(accPersContent).appendTo(accPersDataPanel);
     var accPersCol1 = getDiv('fl-col');
@@ -487,18 +527,11 @@ function generateCheckoutFlat() {
     email = generateInputField("E-mail адрес:", 'ordemail', false);
     passwd = generateInputField("Пароль:", 'ordpasswd', true);
     rpasswd = generateInputField("Повторите пароль:", 'ordrpasswd', true);
-    $(userfio).appendTo($(accPersCol1));
-    $(userphone).appendTo($(accPersCol1));
-    $(email).appendTo($(accPersCol1));
+    $(userfio).appendTo(accPersCol1);
+    $(userphone).appendTo(accPersCol1);
+    $(email).appendTo(accPersCol1);
     $(passwd).appendTo(accPersCol1);
     $(rpasswd).appendTo(accPersCol1);
-    userData = $.ajax({
-        url: 'login.php',
-        async: false,
-        method: 'POST',
-        dataType: 'json',
-        data: 'getAccount'
-    }).responseJSON;
 
     var contButton = getDiv('fl-row fl-vcenter fl-hcenter light');
     $(contButton).addClass('magenta-bg').width('155px').height('50px').text('Продолжить').attr('href','#')
@@ -507,10 +540,9 @@ function generateCheckoutFlat() {
             if(checkRegData('#ordfio','#ordemail','#ordtel','#ordpasswd','#ordrpasswd')) {
                 //show_usermenu();
                 refreshCart();
-                $(accPersData).removeClass("active");
-                $(accPersDataPanel).removeClass("show");
-                $(deliveryData).addClass("active");
-                $(deliveryDataPanel).addClass("show");
+                $('#accPersData').removeClass("active");
+                $('#accPersDataPanel').removeClass("show");
+                showDeliveryData();
             }
         });
 
@@ -541,10 +573,9 @@ function generateCheckoutFlat() {
                     if(msg.error==null) {
                         show_usermenu();
                         refreshCart();
-                        $(accPersData).removeClass("active");
-                        $(accPersDataPanel).removeClass("show");
-                        $(deliveryData).addClass("active");
-                        $(deliveryDataPanel).addClass("show");
+                        $('#accPersData').removeClass("active");
+                        $('#accPersDataPanel').removeClass("show");
+                        showDeliveryData();
                     } else {
                         alert("Ошибка входа!");
                     }
@@ -555,12 +586,21 @@ function generateCheckoutFlat() {
     $(recoveryPass).appendTo(loginArea).text('Восстановить пароль').css('color','#343434')
         .css('font-size','14px').css('font-weight','lighter').attr('href','#')
         .css('margin-left','23px');
+    return accPersContent;
+}
 
-    var  deliveryData = document.createElement('div');
-    $(deliveryData).appendTo(checkBody).html("<span style='margin-left:30px'>2.</span>&nbsp; Информация о доставке").addClass('accordion');
+function checkFieldsNotEmpty() {
 
-    var deliveryDataPanel = getDiv('panel');
-    $(deliveryDataPanel).appendTo(checkBody);
+    for (var i = 0; i < arguments.length; i++) {
+        if(!$(arguments[i]).val()) {
+            return false;
+        }
+
+    }
+    return true;
+}
+
+function generateDeliveryContent() {
     var deliveryContainer = getDiv('fl-row');
     $(deliveryContainer).appendTo(deliveryDataPanel);
     var deliveryCol1 = getDiv('fl-col');
@@ -577,32 +617,58 @@ function generateCheckoutFlat() {
     inputDoubleFieldContainer = getDiv('fl-row fl-space');
     var home = generateInputField("Дом", 'ordhome', false);
     var flat = generateInputField("Квартира", 'ordflat', false);
-    //$(inputDoubleFieldContainer).addClass('fl-row').addClass('fl-space');
+
     $(home).width('170px').appendTo(inputDoubleFieldContainer);
     $(flat).width('170px').appendTo(inputDoubleFieldContainer);
-    $(city).css('margin-top','22px').appendTo(deliveryCol1);
+    $(city).appendTo(deliveryCol1);
     $(street).appendTo(deliveryCol1);
     $(inputDoubleFieldContainer).width('390px').appendTo(deliveryCol1);
     var deliveryContinue = document.createElement('a');
     $(deliveryContinue).addClass('redbutton').appendTo(deliveryCol1).attr('href','#')
         .css('margin-top','32px').text("Продолжить").css('font-weight','lighter')
         .css('font-size','18px').on('click',function() {
-            $(deliveryData).removeClass("active");
-            $(deliveryDataPanel).removeClass("show");
-            $(acceptData).addClass("active");
-            $(acceptDataPanel).addClass("show");
-        $('#infoName').text("asdfdsafsdaf");
-        $('#infoHome').text("23");
-        $('#infoFlat').text("234");
+
+            if(checkFieldsNotEmpty('#ordcity','#ordstreet','#ordhome','#ordflat')) {
+                $('#deliveryData').removeClass("active");
+                $('#deliveryDataPanel').removeClass("show");
+                $('#acceptData').addClass("active");
+                $('#acceptDataPanel').addClass("show");
+                $.each(userData.orders[userData.current].details, function(i, item) {
+                     var row = generateOrderProd(item);
+                     $(row).appendTo($('#detailsTable'));
+                });
+                $('#itogoSumma').text(parseInt(userData.orders[userData.current].summa).formatMoney(0,","," "));
+
+                $('#infoName').text(userData.userData.fio);
+                $('#infoTel').text(userData.userData.tel);
+                $('#infoEmail').text(userData.login);
+                $('#infoCity').text($('#ordcity').val());
+                $('#infoStreet').text($('#ordstreet').val());
+                $('#infoHome').text($('#ordhome').val());
+                $('#infoFlat').text($('#ordflat').val());
+                switch($('input[name=deliveryMethod]:checked').val()) {
+                    case "courier": $('#infoMethod').html("Курьерская доставка<br> с оплатой при получении");
+                        break;
+                    case "rpost": $('#infoMethod').html("Почта России<br> с наложенным платежом");
+                        break;
+                    case "qpost": $('#infoMethod').html("Доставка через терминалы<br> QIWI Post");
+                        break;
+                }
+
+                $('#infoComment').text($('#ordcomment').val());
+            } else {
+                alert('Заполните все поля!');
+            }
     });
 
     deliveryMethods = getDiv('subtitle');
     $(deliveryMethods).text("Способ доставки").appendTo(deliveryCol2);
-    var radioData = {
-        name:"badge",
+    var radioDeliveryData = {
+        name:"deliveryMethod",
         content: [{
             value: "courier",
-            text: "Курьерская доставка<br> с оплатой при получении"
+            text: "Курьерская доставка<br> с оплатой при получении",
+            checked: true
         }, {
             value: "rpost",
             text: "Почта России<br> с наложенным платежом"
@@ -611,8 +677,8 @@ function generateCheckoutFlat() {
             text: "Доставка через терминалы<br> QIWI Post"
         }]
     };
-    deliveryMethodInput = generateRadioInput(radioData);
-    $(deliveryMethodInput).css('margin-top','40px').appendTo(deliveryCol2);
+    deliveryMethodInput = generateRadioInput(radioDeliveryData);
+    $(deliveryMethodInput).appendTo(deliveryCol2);
 
     orderComment = getDiv('subtitle');
     $(orderComment).text("Комментарий к заказу").appendTo(deliveryCol3);
@@ -623,19 +689,17 @@ function generateCheckoutFlat() {
         .css('background-color','#e9e9e9').css('font-size','16px')
         .css('font-weight','lighter').css('padding-left','16px')
         .css('border','none');
+    return deliveryContainer;
+}
 
-
-    var acceptData = document.createElement('div');
-    $(acceptData).appendTo(checkBody).html("<span style='margin-left:30px'>3.</span>&nbsp; Подтверждение заказа").addClass('accordion');
-
-    var acceptDataPanel = getDiv('panel fl-col');
-    $(acceptDataPanel).appendTo(checkBody);
+function generateAcceptContent() {
+    var container = getDiv('fl-col');
     var acceptDetail = getDiv('fl-col');
-    $(acceptDetail).css('margin-left','30px').appendTo(acceptDataPanel);
+    $(acceptDetail).css('order','1').css('margin-left','30px').appendTo(container);
     var acceptDetailCaption = getDiv('subtitle');
     $(acceptDetailCaption).text("Состав заказа:").appendTo(acceptDetail);
     var detailsTable  = getDiv('fl-col');
-    $(detailsTable).addClass('details-table').appendTo(acceptDetail);
+    $(detailsTable).addClass('details-table').attr('id','detailsTable').appendTo(acceptDetail);
     var detailsTableCaption = getDiv('fl-row');
     $(detailsTableCaption).appendTo(detailsTable);
 
@@ -648,23 +712,18 @@ function generateCheckoutFlat() {
     var psum = document.createElement('span');
     $(psum).text('Итого').appendTo(detailsTableCaption);
 
-    $.each(userData.orders[userData.current].details, function(i, item) {
-        var row = generateOrderProd(item);
-        $(row).appendTo(detailsTable);
-    });
-
     var itogoRow = getDiv('fl-row');
-    $(itogoRow).css('justify-content','flex-end').css('margin-right','70px').appendTo(acceptDataPanel)
+    $(itogoRow).css('order','2').css('justify-content','flex-end').css('margin-right','70px').appendTo(container)
         .height('110px').css('align-items','center');
     var itogoText = document.createElement('span');
     $(itogoText).text("Итого:").addClass('bold italic').css('font-size','24px').css('margin-right','40px')
         .appendTo(itogoRow);
     var itogoSumma = document.createElement('span');
-    $(itogoSumma).addClass('bold italic').css('font-size','24px').appendTo(itogoRow)
-        .text(parseInt(userData.orders[userData.current].summa).formatMoney(0,","," "));
+     $(itogoSumma).addClass('bold italic').css('font-size','24px').appendTo(itogoRow).attr('id','itogoSumma');
+
 
     var deliveryInfo  = getDiv('fl-col');
-    $(deliveryInfo).css('margin-left','30px').appendTo(acceptDataPanel);
+    $(deliveryInfo).css('order','3').css('margin-left','30px').appendTo(container);
     var deliveryCaption = getDiv('subtitle');
     $(deliveryCaption).text('Доставка:').appendTo(deliveryInfo);
     var deliveryInfoContent = getDiv('fl-row');
@@ -690,13 +749,68 @@ function generateCheckoutFlat() {
     $(deliveryInfoEmail).appendTo(deliveryInfoCol1);
     $(deliveryInfoCity).appendTo(deliveryInfoCol2);
     $(deliveryInfoStreet).appendTo(deliveryInfoCol2);
-    var homeBox = getDiv('fl-row fl-space');
+    var homeBox = getDiv('fl-row');
     $(homeBox).appendTo(deliveryInfoCol2);
-    $(deliveryInfoHome).appendTo(homeBox);
-    $(deliveryInfoFlat).appendTo(homeBox);
+    $(deliveryInfoHome).width('75px').appendTo(homeBox);
+    $(deliveryInfoFlat).width('100px').appendTo(homeBox);
     $(deliveryInfoMethod).appendTo(deliveryInfoCol3);
     $(deliveryInfoComment).appendTo(deliveryInfoCol3);
 
+    var GOGOGO = getDiv('redbutton');
+    $(GOGOGO).css('order','4').text("Подтвердить заказ").css('margin','20px 0 30px 30px').appendTo(container)
+        .on('click',function () {
+            var prData = {
+                infoCity : $('#ordcity').val(),
+                infoStreet : $('#ordstreet').val(),
+                infoHome : $('#ordhome').val(),
+                infoFlat : $('#ordflat').val(),
+                infoMethod : $('input[name=deliveryMethod]:checked').val(),
+                infoComment : $('#ordcomment').val()
+            }
+
+            $.ajax(
+                {
+                    url: 'cart.php',
+                    async: false,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: 'close=' + prepareData(prData),
+                    success: function () {
+                        show_usermenu();
+                        refreshCart();
+                        window.location = 'index.php';
+                    }
+                })
+        });
+
+    return container;
+
+}
+
+function generateCheckoutFlat() {
+    var container = getDiv('fl-col products-container');
+    var caption = getDiv('flat-caption'); $(caption).appendTo(container);
+    var checkBody = getDiv();
+    $(checkBody).appendTo(container);
+    var captionText = document.createElement('h1');
+    $(captionText).text('оформление заказа').appendTo($(caption));
+    //1.Контактная информация
+    var accPersData = getDiv('accordion');
+    $(accPersData).attr('id','accPersData').appendTo(checkBody).html("<span style='margin-left:30px'>1.</span>&nbsp; Контактная информация");
+    var accPersDataPanel = getDiv('panel');
+    $(accPersDataPanel).attr('id','accPersDataPanel').appendTo(checkBody);
+    //2.Информация о доставке
+    var deliveryData = getDiv('accordion');
+    $(deliveryData).attr('id','deliveryData').appendTo(checkBody).html("<span style='margin-left:30px'>2.</span>&nbsp; Информация о доставке");
+    var deliveryDataPanel = getDiv('panel');
+    $(deliveryDataPanel).attr('id','deliveryDataPanel').appendTo(checkBody);
+    //3.Подтверждение заказа
+    var acceptData = getDiv('accordion');
+    $(acceptData).attr('id','acceptData').appendTo(checkBody).html("<span style='margin-left:30px'>3.</span>&nbsp; Подтверждение заказа");
+    var acceptDataPanel = getDiv('panel fl-col');
+    $(acceptDataPanel).attr('id','acceptDataPanel').appendTo(checkBody);
+
+    return container;
 
     if(userData!=null)
     {
@@ -705,7 +819,6 @@ function generateCheckoutFlat() {
         $(deliveryData).addClass("active");
         $(deliveryDataPanel).addClass("show");
     }
-    return container;
 }
 
 function generateLabelField(text, name) {
@@ -1446,7 +1559,9 @@ function generateRadioInput(data) {
         var radioInput = document.createElement('input');
         $(radioInput).attr('name',data.name).attr("value",item.value).attr('type','radio')
             .attr('id',item.value).appendTo($(radioButton));
-        //if(data.checked) $(radioInput).attr('checked','checked');
+        if(item.checked) {
+            $(radioInput).attr('checked', 'checked');
+        }
         var radioLabel = document.createElement('label');
         $(radioLabel).attr('for',item.value).html(item.text).css('color','#000')
             .css('font-size','16px').css('font-weight','lighter')

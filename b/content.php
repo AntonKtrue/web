@@ -1,4 +1,6 @@
 <?php
+session_start();
+if(!isset($_SESSION["admin"])) die();
 require_once("../db.php");
 $conn = db_conn();
 $out = array();
@@ -54,6 +56,25 @@ if(isset($_POST['product'])) {
 	$out->details = json_decode($out->details);
     $out->fotos = $images;
 }
+
+if(isset($_POST['getUser'])) {
+    $query = $conn->query("SELECT * FROM users WHERE id =" . $_POST['getUser']);
+    if($query->num_rows==1) {
+        $out = $query->fetch_object();
+        $out->userData = json_decode($out->userData);
+        $query2 = $conn->query("SELECT orders.id, orders.order_date, orders.status, sum(product_count) as prod_count," .
+            " sum(product_cost*product_count) as summa FROM orders, order_details WHERE user_id=" . $_POST['getUser'] .
+            " AND orders.id = order_details.order_id GROUP BY order_id;");
+        $out->orders = array();
+        $itogSumma = 0;
+        while($order = $query2->fetch_object()) {
+            $out->orders[] = $order;
+            $itogSumma += $order->summa;
+        }
+        $out->itog = $itogSumma;
+    }
+}
+
 echo json_encode($out);
 
 

@@ -117,7 +117,7 @@ function checkUser($login) {
 	$password = md5($login["password"]);
 	$q = $c->query("select * from users where login = '$user' and password = '$password'");
 	if($q->num_rows > 0) {
-	    return $q->fetch_object()->id;
+	    return $q->fetch_object();
     } else {
         return 0;
     }
@@ -135,7 +135,8 @@ function generateCode($length=6) {
 
 function doLogin($login) {
     global $c;
-    if($user_id = checkUser($login)) {
+    $res = checkUser($login);
+    if($user_id = $res->id) {
         if(isset($_SESSION["cart"]["productsCount"]) && $_SESSION["cart"]["productsCount"] > 0) {
             error_log("session product count: " . $_SESSION["cart"]["productsCount"]);
             $cart_id = createOpenCart($user_id);
@@ -169,6 +170,7 @@ function doLogin($login) {
         $_SESSION['hash'] = $hash;
         $_SESSION['user'] = $login["user"];
         $_SESSION['order'] = $cart_id;
+        if($res->accessLevel==1) $_SESSION["admin"]=true;
         error_log("exit_cart_id:" . $cart_id);
         updateHash($login, $hash);
     } else {

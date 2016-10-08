@@ -18,6 +18,12 @@ $(function() {
 			});
 });
 
+function getDiv(classes) {
+	var div = document.createElement('div');
+	if(classes) $(div).addClass(classes);
+	return div;
+}
+
 function prepareData(prData) {
 	return encodeURIComponent(JSON.stringify(prData))
 }
@@ -178,7 +184,29 @@ function buildUsersTable(msg) {
 
 				var tableRowProdView = document.createElement('span');
 				$(tableRowProdView).addClass('row-item-view').css('margin-left', '60px').text('просмотр')
-					.css('cursor','pointer').appendTo($(tableRow));
+					.css('cursor','pointer').appendTo($(tableRow))
+					.on('click',function() {
+						$('#workspace').empty();
+						var viewUser = generateViewUser();
+						$(viewUser).appendTo($('#workspace'));
+						var userData = $.ajax({
+							type: 'POST',
+							url: "content.php",
+							async: false,
+							dataType: "json",
+							data: "getUser=" + item.id
+						}).responseJSON;
+						$("#infoName").text(userData.userData.fio);
+						$("#infoTel").text(userData.userData.tel);
+						$("#infoEmail").text(userData.login);
+						$("#infoCity").text(userData.userData.city);
+						$("#infoStreet").text(userData.userData.street);
+						$("#infoHome").text(userData.userData.home);
+						$("#infoFlat").text(userData.userData.flat);
+
+						var ordersView = generateOrdersView(userData.orders);
+						$(ordersView).appendTo($('#workspace'));
+					});
 
 			});
 		}
@@ -189,6 +217,64 @@ function buildUsersTable(msg) {
 			'white-bg').appendTo($(table));
 	
 	return table;
+}
+
+function generateOrdersView(orders) {
+	var container = getDiv('orders-info');
+	var caption = getDiv();
+	$(caption).text("история заказов").appendTo(container);
+	$.each(orders, function (i, item) {
+		var orderRow = buildTableRow();
+		$(orderRow).appendTo(container);
+	});
+	return container;
+}
+
+function generateViewUser() {
+	var container = getDiv('fl-col');
+	var userInfo = getDiv('user-info');
+	var ordersInfo = getDiv('fl-col');
+	var deleteUser = getDiv();
+	$(userInfo).appendTo(container);
+		var userInfoCaption = getDiv();
+		$(userInfoCaption).text('информация о пользователе').appendTo(userInfo);
+		var userInfoDetails = getDiv();
+		$(userInfoDetails).appendTo(userInfo);
+		var userInfoDetailsCol1 = getDiv();
+		$(userInfoDetailsCol1).appendTo(userInfoDetails);
+		var userInfoDetailsCol2 = getDiv();
+		$(userInfoDetailsCol2).appendTo(userInfoDetails);
+
+	var userInfoName = generateLabelField("Контактное лицо (ФИО):", "infoName");
+	var userInfoTel = generateLabelField("Контактный телефон:","infoTel");
+	var userInfoEmail = generateLabelField("E-mail","infoEmail");
+	var userInfoCity = generateLabelField("Город:","infoCity");
+	var userInfoStreet = generateLabelField("Улица:","infoStreet");
+	var userInfoHome = generateLabelField("Дом:", "infoHome");
+	var userInfoFlat = generateLabelField("Квартира", "infoFlat");
+
+
+	$(userInfoName).appendTo(userInfoDetailsCol1);
+	$(userInfoTel).appendTo(userInfoDetailsCol1);
+	$(userInfoEmail).appendTo(userInfoDetailsCol1);
+	$(userInfoCity).appendTo(userInfoDetailsCol2);
+	$(userInfoStreet).appendTo(userInfoDetailsCol2);
+	var homeBox = getDiv('fl-row');
+	$(homeBox).appendTo(userInfoDetailsCol2);
+	$(userInfoHome).width('75px').appendTo(homeBox);
+	$(userInfoFlat).width('100px').appendTo(homeBox);
+
+	return container;
+
+}
+
+function generateLabelField(text, name) {
+	var container = getDiv('fl-col');
+	var caption = getDiv('fl-row');
+	var content = getDiv('fl-row');
+	$(caption).text(text).appendTo(container);
+	$(content).attr('id',name).appendTo(container);
+	return container;
 }
 
 function buildProdTable(msg) {

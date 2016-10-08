@@ -23,14 +23,14 @@ if(isset($_SESSION['user']) && isset($_SESSION['hash'])) {
     if(isset($_POST['addProd'])) {
         $prod = json_decode($_POST['addProd']);
         add_product($open_cart, $prod);
-        $open_cart = open_cart($user, $hash);
-    } else if (isset($_POST['cartorder'])) {
-
+    } else if (isset($_POST['close'])) {
+        $close = json_decode($_POST['close']);
+        close_cart($close);
     } else if (isset($_POST['update'])) {
         $update = json_decode($_POST['update']);
         update_product($update);
-        $open_cart = open_cart($user, $hash);
     }
+    $open_cart = open_cart($user, $hash);
 
 
 echo json_encode($open_cart);

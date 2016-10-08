@@ -1,3 +1,7 @@
+<?php
+session_start();
+if(!isset($_SESSION["admin"])) die();
+?>
 <!DOCTYPE html>
 <html>
 <head>

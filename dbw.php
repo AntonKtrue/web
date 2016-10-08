@@ -9,6 +9,20 @@ require_once("./db.php");
 require_once('content.php');
 $conn = db_conn();
 
+
+function close_cart($close) {
+    global $conn;
+    if(isset($_SESSION['order'])) {
+        $stmt = $conn->prepare("UPDATE orders SET details = ?, status = 1 WHERE id = ?");
+        $details = json_encode($close);
+        $order_id = $_SESSION['order'];
+        $stmt->bind_param("si",$details, $order_id);
+        $stmt->execute();
+        $stmt->close();
+        unset($_SESSION['order']);
+    }
+}
+
 function open_cart($user, $hash=null ) {
     global $conn;
     if($hash) {
@@ -89,7 +103,7 @@ function createOpenCart($user_id) {
     if($cart_id = getEmptyCart($user_id)) {
         return $cart_id;
     } else {
-        $conn->query("INSERT INTO orders (user_id, order_date, status) VALUES ($user_id, CURRENT_TIMESTAMP ,0)");
+        $conn->query("INSERT INTO orders (user_id, order_date, status, details) VALUES ($user_id, CURRENT_TIMESTAMP ,0, JSON_OBJECT())");
         $cart_id = $conn->insert_id;
         $conn->commit();
         return $cart_id;

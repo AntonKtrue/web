@@ -786,6 +786,7 @@ input[type="radio"]:checked + label {
 	color: #999999;
 	font-weight: lighter;
 	font-size: 14px;
+	height: 20px;
 }
 .delivery-info > div div > div:last-child {
 	color: #0d0b0b;
