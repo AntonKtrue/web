@@ -104,3 +104,16 @@ function delete_var($key, $id) {
     $conn->query("update products set details = JSON_REMOVE(details,'$.vars.$key') where id = $id;");
     $conn->commit();
 }
+
+function delete_user($id) {
+    global $conn;
+    $conn->query("delete from users where id=$id");
+    $conn->commit();
+}
+
+function update_order_status($id,$status) {
+    global $conn;
+    $conn->query("update orders set status=$status where id=$id");
+    $conn->commit();
+
+}

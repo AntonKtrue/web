@@ -1,6 +1,17 @@
 /**
  * 
  */
+Number.prototype.formatMoney = function(c, d, t){
+	var n = this,
+		c = isNaN(c = Math.abs(c)) ? 2 : c,
+		d = d == undefined ? "." : d,
+		t = t == undefined ? "," : t,
+		s = n < 0 ? "-" : "",
+		i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
+		j = (j = i.length) > 3 ? j % 3 : 0;
+	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+};
+
 $(function() {
 	mainFrame = generateMainFrame();
 	$(mainFrame).appendTo("#content");
@@ -30,7 +41,7 @@ function prepareData(prData) {
 
 function generateMainFrame() {
 	mainFrameContainer = document.createElement('div');
-	$(mainFrameContainer).addClass('main-frame').addClass('fl-row');
+	$(mainFrameContainer).addClass('main-frame shadow').addClass('fl-row').css('margin-bottom','30px');
 
 	leftMenuCol = document.createElement('div');
 	$(leftMenuCol).css('min-height','996px').addClass('fl-col').addClass('gray-blue-bg').appendTo(
@@ -137,6 +148,138 @@ function buildTableRow() {
 	return tableRowContainer;
 }
 
+function buildOrdersData(orders) {
+	var container = getDiv('orders-table');
+	var caption = getDiv();
+	var captionNum = "<div>номер заказа</div>";
+	var captionStat = "<div>статус</div>";
+	var captionSum = "<div>сумма</div>";
+	var captionTime = "<div>время заказа</div>";
+	$(captionNum).width('196px').css('margin-left','22px').appendTo(caption);
+	$(captionStat).width('121px').appendTo(caption);
+	$(captionSum).width('100px').appendTo(caption);
+	$(captionTime).appendTo(caption);
+	$(caption).appendTo(container);
+
+	$.each(orders.orders, function(i, item){
+		//var orderRow = buildTableRow();
+		var orderRow = getDiv();
+		$(orderRow).appendTo(container);
+		var cell1 = getDiv('cell1');
+		var cell2 = getDiv('cell2');
+		var cell3 = getDiv('cell3');
+		var cell4 = getDiv('cell4');
+		var cell5 = getDiv('cell5');
+		$(cell1).attr('id',"c"+i+"_1").appendTo(orderRow);
+		$(cell2).attr('id',"c"+i+"_2").appendTo(orderRow);
+		$(cell3).attr('id',"c"+i+"_3").appendTo(orderRow);
+		$(cell4).attr('id',"c"+i+"_4").appendTo(orderRow);
+		$(cell5).attr('id',"c"+i+"_5").appendTo(orderRow);
+
+		var num = "<span>№"+item.id+"</span>&nbsp;<span>от</span>&nbsp;<span>"+item.login+"</span>";
+		$(num).appendTo(cell1);
+
+		var ordst= generateStatusBlock(item);
+		$(ordst).appendTo(cell2);
+
+		var orderSum = getDiv();
+		$(orderSum).text(item.summa).appendTo(cell3);
+		var parseDate = item.order_date.split(" ");
+		var date = parseDate[0].split("-");
+		var time = parseDate[1].split(":");
+
+		var orderDate = "<span>" + date[2] + "." + date[1] + "." + date[0] + " в " + time[0] + ":" + time[1] + "</span>";
+		$(orderDate).appendTo(cell4);
+
+		var orderView = getDiv();
+		$(orderView).text('просмотр').appendTo(cell5);
+
+	});
+	var lastRow = getDiv();
+	$(lastRow).appendTo(container);
+	return container;
+}
+
+function getVisibleBlock(status) {
+	var visibleBlock = getDiv('cur-status');
+	switch (status) {
+		case "1": $(visibleBlock).addClass('accept').text("принят");
+			break;
+		case "2": $(visibleBlock).addClass('sent').text("отгружен");
+			break;
+		case "3": $(visibleBlock).addClass('courier').text("у курьера");
+			break;
+		case "4": $(visibleBlock).addClass('delivered').text("доставлен");
+			break;
+		case "5": $(visibleBlock).addClass('cancel').text("отмена");
+			break;
+	}
+
+	return visibleBlock;
+}
+
+function generateStatusBlock(order) {
+	var container = getDiv('set-status-container');
+	var visibleBlock = getVisibleBlock(order.status)
+	$(visibleBlock).appendTo(container).on('click', function () {
+		$(this).siblings('.sel-status').fadeIn(250);
+	});;
+	var hiddenMenu = getDiv('sel-status');
+	var statusList = document.createElement('ul');
+	$(statusList).appendTo(hiddenMenu);
+	var menuAccept = document.createElement('li');
+	$(menuAccept).attr('status','1').addClass('accept').appendTo(statusList);
+	var menuSent = document.createElement('li');
+	$(menuSent).attr('status','2').addClass('sent').appendTo(statusList);
+	var menuCourier = document.createElement('li');
+	$(menuCourier).attr('status','3').addClass('courier').appendTo(statusList);
+	var menuDelivered = document.createElement('li');
+	$(menuDelivered).attr('status','4').addClass('delivered').appendTo(statusList);
+	var menuCancel = document.createElement('li');
+	$(menuCancel).attr('status','5').addClass('cancel').appendTo(statusList);
+	$(menuAccept).text('принят');
+	$(menuSent).text('отгружен');
+	$(menuCourier).text('у курьера');
+	$(menuDelivered).text('доставлен');
+	$(menuCancel).text('отмена');
+	$(hiddenMenu).on('mouseleave',function() {
+		$(this).fadeOut(100);
+	}).on('click','li', function () {
+		var prData = {
+			target: 'order',
+			operation: 'update',
+			id: order.id,
+			field: 'status',
+			value: $(this).attr('status')
+		}
+		var result = false;
+		$.ajax({
+			type : 'POST',
+			url : 'crud.php',
+			async: false,
+			dataType : 'json',
+			data : 'data='+ prepareData(prData),
+			success : function(msg) {
+				if (msg.result == "success") {
+					result = true;
+				} else {
+					alert("Ошибка!");
+				}
+
+			}
+		});
+		if(result) {
+			var newStatus = getVisibleBlock(prData.value);
+			$(newStatus).on('click', function () {
+				$(this).siblings('.sel-status').fadeIn(250);
+			});
+			$(this).closest('.set-status-container').children('.cur-status').replaceWith(newStatus);
+		}
+		$(this).closest('.sel-status').fadeOut(100);
+	}).appendTo(container);
+	return container;
+}
+
 function buildUsersTable(msg) {
 	table = document.createElement('div');
 	$(table).addClass('fl-col').addClass('white-bg').addClass('table');
@@ -187,6 +330,8 @@ function buildUsersTable(msg) {
 					.css('cursor','pointer').appendTo($(tableRow))
 					.on('click',function() {
 						$('#workspace').empty();
+						$('.content-caption').empty();
+						$('.content-caption').text('просмотр пользователя')
 						var viewUser = generateViewUser();
 						$(viewUser).appendTo($('#workspace'));
 						var userData = $.ajax({
@@ -204,8 +349,35 @@ function buildUsersTable(msg) {
 						$("#infoHome").text(userData.userData.home);
 						$("#infoFlat").text(userData.userData.flat);
 
-						var ordersView = generateOrdersView(userData.orders);
-						$(ordersView).appendTo($('#workspace'));
+						var ordersView = generateOrdersView(userData);
+						$(ordersView).css('margin-top','16px').appendTo($('#workspace'));
+						var delUserLine = getDiv('fl-row');
+						$(delUserLine).appendTo($('#workspace')).css('margin-right','20px')
+							.css('justify-content','flex-end');
+						var delUser = document.createElement('a');
+						$(delUser).appendTo(delUserLine).text('Удалить пользователя')
+							.css('color','#ad0000').attr('href','#').on('click',function(){
+							var prData = {
+								target: 'users',
+								operation: 'remove',
+								id: userData.id
+							}
+							$.ajax({
+								type : 'POST',
+								url : 'crud.php',
+								async: false,
+								dataType : 'json',
+								data : 'data='+ prepareData(prData),
+								success : function(msg) {
+									if (msg.result == "success") {
+										$(usersItem).trigger('click');
+									} else {
+										alert("Ошибка!");
+									}
+								}
+							});
+						})
+
 					});
 
 			});
@@ -219,14 +391,34 @@ function buildUsersTable(msg) {
 	return table;
 }
 
-function generateOrdersView(orders) {
+function generateOrdersView(userData) {
 	var container = getDiv('orders-info');
 	var caption = getDiv();
 	$(caption).text("история заказов").appendTo(container);
-	$.each(orders, function (i, item) {
+	$.each(userData.orders, function (i, item) {
 		var orderRow = buildTableRow();
 		$(orderRow).appendTo(container);
+		var ordNum = document.createElement('span');
+		$(ordNum).text('№' + item.id).appendTo(orderRow);
+		var ordSum = document.createElement('span');
+		$(ordSum).text(parseInt(item.summa).formatMoney(0,","," ")  + "руб.").appendTo(orderRow);
+
+
 	});
+	var finalLine = getDiv('fl-row');
+	$(finalLine).appendTo(container);
+	var itogoSumText = getDiv('fl-col');
+	var itogoSumTextUp = "<span>итоговая</span>";
+	var itogoSumTextDown = "<span>сумма заказов</span>";
+	$(itogoSumTextUp).appendTo(itogoSumText);
+	$(itogoSumTextDown).appendTo(itogoSumText);
+	$(itogoSumText).css('margin-right','15px').appendTo(finalLine);
+	var itogoSum = getDiv();
+	var itogoSumSum = "<span>" + parseInt(userData.itog).formatMoney(0,","," ") + "</span>";
+	var itogoSumRub = "<span>руб.</span>";
+	$(itogoSum).appendTo(finalLine);
+	$(itogoSumSum).appendTo(itogoSum);
+	$(itogoSumRub).appendTo(itogoSum);
 	return container;
 }
 
@@ -1019,10 +1211,10 @@ function getContent(choise) {
 			switch (choise) {
 			case 'orders':
 				//TODO buildOrdersData - after orders
+				containerTable = buildOrdersData(msg);
+				$(containerTable).appendTo($(container));
 				break;
 			case 'users':
-				//TODO buildOrdersData - after orders
-				//TODO редактирование профиля завершить 
 				containerTable = buildUsersTable(msg);
 				$(containerTable).appendTo($(container));
 				break;

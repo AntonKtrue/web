@@ -148,6 +148,8 @@ header {
 }
 
 .table-row {
+	display: flex;
+	flex-flow: row nowrap;
 	height: 53px;
 	margin: 1px 1px 0px 1px;
 }
@@ -549,8 +551,196 @@ input[type="radio"]:checked + label {
 	color: #0b0b0b;
 	font-weight: lighter;
 	font-size: 18px;
-	width: 42px;
+	min-width: 42px;
 	padding-left: 5px;
 	height: 25px;
 	border: 1px solid #dee1e2;
+	margin-right: 16px;
+}
+
+.shadow {
+	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 7px #226997;
+	-moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 7px #226997;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 7px #226997;
+}
+
+.orders-info {
+	display: flex;
+	margin-right: 20px;
+	margin-left: 20px;
+	background-color: white;
+	flex-flow: column nowrap;
+	border: 1px solid #dee1e2;
+	border-radius: 2px;
+}
+.orders-info > div:first-child {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	padding-left: 23px;
+	color: #95a5a6;
+	font-size: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
+	border-bottom: 1px solid #dee1e2;
+	height: 46px;
+}
+.orders-info > div.table-row {
+	font-size: 14px;
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+}
+
+.orders-info > div:last-child > div.fl-col {
+	align-items: flex-end;
+	color: #3498db;
+	font-weight: bold;
+}
+.orders-info > div:last-child > div:last-child > span:first-child {
+	font-size: 43px;
+	font-weight: lighter;
+	color: #000;
+
+}
+.orders-info > div:last-child > div:last-child > span:last-child {
+	font-size: 21px;
+}
+
+.accept {
+	color: #0a8eaf;
+}
+.sent {
+	color: #1ba254;
+}
+.courier {
+	color: #ad5a00;
+}
+.delivered {
+	color: #a01ba2;
+}
+.cancel {
+	color: #6c6c6c;
+}
+/*Таблица*/
+.orders-table {
+	background-color: white;
+	border: 1px solid #dee1e2;
+	border-radius: 2px;
+	display: flex;
+	flex-flow: column nowrap;
+	margin-left: 20px;
+	width: 738px;
+	font-size: 14px;
+}
+/*Заголовок таблицы */
+.orders-table > div:first-child {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	padding-left: 23px;
+	color: #95a5a6;
+	font-size: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
+	border-bottom: 1px solid #dee1e2;
+	height: 46px;
+}
+/* ряд таблицы */
+.orders-table > div:not(:first-child):not(:last-child) {
+	border-bottom: 1px solid #dee1e2;
+	border-left: 4px solid white;
+	display: flex;
+	flex-flow: row nowrap;
+	height: 55px;
+}
+.orders-table > div:not(:first-child):not(:last-child):hover {
+	background-color: #f6f8fc;
+	border-left: 4px solid #8e44ad;
+}
+.orders-table > div:last-child {
+	height: 59px;
+}
+
+.orders-table .cell1 {
+	align-items: center;
+	display: flex;
+	flex-flow: row nowrap;
+	width: 220px;
+}
+.orders-table .cell1 > span:nth-child(1) {
+	color: #3498db;
+	margin-left: 28px;
+}
+.orders-table .cell1 > span:nth-child(2) {
+	color: #7f8c8d;
+}
+.orders-table .cell1 > span:nth-child(3) {
+	color: #2c3e50;
+}
+
+.orders-table .cell2 {
+	width: 100px;
+}
+.orders-table .cell3 {
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	flex-flow: row nowrap;
+	width: 120px;
+}
+.orders-table .cell4 {
+	align-items: center;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: flex-end;
+	width: 160px;
+}
+.orders-table .cell5 {
+	align-items: center;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	width: 169px;
+}
+
+/*выбор статусов*/
+.set-status-container {
+	display: flex;
+	height: 55px;
+
+	text-transform: lowercase;
+}
+.set-status-container .cur-status {
+	border-bottom: 1px dashed;
+	cursor: pointer;
+	outline: medium none;
+	position: absolute;
+	margin-left: 30px;
+	margin-top: 20px;
+	z-index: 2;
+}
+
+.set-status-container .sel-status {
+	display: none;
+	background-color: white;
+	margin-top: 17px;
+	margin-left: 20px;
+	position: absolute;
+	z-index: 3;
+}
+.set-status-container .sel-status ul {
+	border: 1px solid #dee1e2;
+}
+.set-status-container .sel-status li {
+	border-bottom: 1px solid white;
+	border-top: 1px solid white;
+	cursor: pointer;
+	height: 16px;
+	padding-left: 9px;
+	width: 91px;
+}
+.set-status-container .sel-status li:hover {
+	border-bottom: 1px solid #dee1e2;
+	border-top: 1px solid #dee1e2;
 }

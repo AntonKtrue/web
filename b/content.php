@@ -57,6 +57,17 @@ if(isset($_POST['product'])) {
     $out->fotos = $images;
 }
 
+if(isset($_POST['orders'])) {
+    $query = $conn->query("SELECT users.login, orders.id, orders.order_date, orders.status, sum(product_count) as prod_count," .
+        " sum(product_cost*product_count) as summa FROM orders, order_details, users WHERE users.id = orders.user_id AND" .
+        " orders.id = order_details.order_id AND orders.status > 0 GROUP BY order_id ORDER BY orders.order_date DESC;");
+
+    while($order = $query->fetch_object()) {
+        error_log(json_encode($order));
+        $out['orders'][] = $order;
+    }
+}
+
 if(isset($_POST['getUser'])) {
     $query = $conn->query("SELECT * FROM users WHERE id =" . $_POST['getUser']);
     if($query->num_rows==1) {
@@ -64,7 +75,7 @@ if(isset($_POST['getUser'])) {
         $out->userData = json_decode($out->userData);
         $query2 = $conn->query("SELECT orders.id, orders.order_date, orders.status, sum(product_count) as prod_count," .
             " sum(product_cost*product_count) as summa FROM orders, order_details WHERE user_id=" . $_POST['getUser'] .
-            " AND orders.id = order_details.order_id GROUP BY order_id;");
+            " AND orders.id = order_details.order_id GROUP BY order_id ORDER BY orders.order_date DESC;");
         $out->orders = array();
         $itogSumma = 0;
         while($order = $query2->fetch_object()) {
@@ -78,14 +89,3 @@ if(isset($_POST['getUser'])) {
 echo json_encode($out);
 
 
-// function store_ft_add($object) {
-// 	global $conn;
-// 	$_SESSION["ft_object"] = $object;
-// 	$SQL = "select * from users where hash='" .$_SESSION['hash']."'";
-// 	$q = $conn->query($SQL);
-// 	$user = $q->fetch_object();
-// 	$STORE_SQL = "INSERT INTO registry(number, object, user) " .
-// 			"VALUES('". $object->num ."','". json_encode($object,JSON_UNESCAPED_UNICODE) ."',". $user->id .")";
-// 	$q = $conn->query($STORE_SQL);
-// 	return $q;
-// }

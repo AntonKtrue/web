@@ -81,4 +81,26 @@ if(isset($_POST['data'])) {
                     delete_var($data->key, $data->id);
                     echo json_encode(array("result"=>"success"));
             }
+            break;
+        case "users":
+            switch ($data->operation) {
+                case "remove":
+                    delete_user($data->id); //Каскадное удаление??? со всеми заказами? или пометку об удалении с возможностью восстановления?
+                    echo json_encode(array("result"=>"success"));
+                    break;
+
+            }
+            break;
+        case "order":
+            switch ($data->operation) {
+                case "update":
+                    switch ($data->field) {
+                        case "status":
+                            update_order_status($data->id, $data->value);
+                            echo json_encode(array("result"=>"success"));
+                            break;
+                    }
+                    break;
+            }
+            break;
 	}
