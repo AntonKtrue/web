@@ -9,7 +9,7 @@ var productsInCategory;
 var cartData;
 var userData;
 var patternEmail = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
-
+var curImg;
 
 Number.prototype.formatMoney = function(c, d, t){
     var n = this,
@@ -1042,6 +1042,9 @@ function generateProductFlat(product) {
                     .on('click', function () {
                         $('.ruler-thumb-checked').removeClass('ruler-thumb-checked');
                         $(this).addClass('ruler-thumb-checked');
+
+                        $('#imgBox').css("background","url('./img/products/" + product.id + "/" + item + "') left center no-repeat ")
+                            .css("background-position","center").css('background-size','contain');
                         $(foto).css("background","url('./img/products/" + product.id + "/" + item + "') left center no-repeat ")
                             .css("background-position","center").css('background-size','contain');
                     });
@@ -1326,9 +1329,11 @@ function checkRegData(usernameId, emailId, telId, passwdId, rpasswdId) {
 
 function showZoomFoto() {
     var container = getDiv();
+    var imgBox = getDiv();
+    $(imgBox).attr('id','imgBox').css('margin','0 auto').width('850px').height('850px').appendTo(container);
 
     $(container).css('background-color','white').attr('id','fotomodal').addClass("layout").appendTo("body")
-        .width('300px').height('200px');
+        .width('900px').height('900px');
 }
 
 function showRegistration() {

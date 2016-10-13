@@ -1,5 +1,7 @@
 <?php
-session_start();
+if(!session_id()) {
+    session_start();
+}
 if(!isset($_SESSION["admin"])) die();
 require_once("../db.php");
 $conn = db_conn();

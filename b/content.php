@@ -63,9 +63,17 @@ if(isset($_POST['orders'])) {
         " orders.id = order_details.order_id AND orders.status > 0 GROUP BY order_id ORDER BY orders.order_date DESC;");
 
     while($order = $query->fetch_object()) {
-        error_log(json_encode($order));
         $out['orders'][] = $order;
     }
+}
+
+if(isset($_POST['order'])) {
+    $order = json_decode($_POST['order']);
+    $query = $conn->query("SELECT orders.details FROM orders WHERE id = " . $order->id);
+    $out['details'] = $query->fetch_object();
+    $query = $conn->query("SELECT * FROM");
+
+
 }
 
 if(isset($_POST['getUser'])) {

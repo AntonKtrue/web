@@ -192,11 +192,36 @@ function buildOrdersData(orders) {
 		$(orderDate).appendTo(cell4);
 
 		var orderView = getDiv();
-		$(orderView).text('просмотр').appendTo(cell5);
+		$(orderView).text('просмотр').appendTo(cell5).on('click', function(){
+			$('#workspace').empty();
+			$('.content-caption').empty();
+
+			var ztx = getDiv();
+			$(ztx).html("заказ &nbsp").appendTo($('.content-caption'));;
+			var znum = getDiv();
+			$(znum).html('№'+item.id + "&nbsp").appendTo($('.content-caption')).css('color','#3498db');
+			var zst = getVisibleBlock(item.status);
+			$(zst).removeClass('cur-status').appendTo($('.content-caption')).addClass('order-status')
+				.text("(" + $(zst).text() + ")");
+
+			content = buildOrderView();
+			$(content).appendTo($('#workspace'));
+
+		});
 
 	});
 	var lastRow = getDiv();
 	$(lastRow).appendTo(container);
+	return container;
+}
+
+function buildOrderView() {
+	var container = getDiv();
+	var orders = getDiv('orders-table');
+	$(orders).appendTo(container);
+	var ordersCaption = getDiv();
+	$(ordersCaption).text('содержимое заказа').appendTo(orders);
+
 	return container;
 }
 
