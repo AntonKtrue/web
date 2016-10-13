@@ -32,4 +32,5 @@ function activateLeanModal() {
     $('#modaltrigger').leanModal({top: 175, overlay: 0.45, closeButton: ".hidemodal"});
     $('#regmodaltrigger').leanModal({top: 175, overlay: 0.45, closeButton: ".hidemodal"});
     $('#accmodaltrigger').leanModal({top: 175, overlay: 0.45});
+
 }

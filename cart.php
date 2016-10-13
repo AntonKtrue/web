@@ -22,7 +22,7 @@ if(isset($_SESSION['user']) && isset($_SESSION['hash'])) {
     $open_cart = open_cart($user, $hash);
     if(isset($_POST['addProd'])) {
         $prod = json_decode($_POST['addProd']);
-        add_product($open_cart, $prod);
+        add_product($prod);
     } else if (isset($_POST['close'])) {
         $close = json_decode($_POST['close']);
         close_cart($close);

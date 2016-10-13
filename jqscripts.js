@@ -73,6 +73,7 @@ $(function () {
     showLoginForm();
     showRegistration();
     showAccount();
+    showZoomFoto();
 
 });
 
@@ -316,26 +317,31 @@ function generateCartFlat() {
     $(summaText).text('Итого').css('margin-left','92px').appendTo(summaCol);
 
     $.each(cartData.details, function(i, item) {
-        var detail = document.createElement('div');
-        $(detail).addClass('fl-row').addClass('order-row').addClass('fl-vcenter').addClass('order');
+        $.each(item, function(i2, item2) {
+            var detail = document.createElement('div');
+            $(detail).addClass('fl-row').addClass('order-row').addClass('fl-vcenter').addClass('order');
 
-        var prod = document.createElement('div');
-        var available = document.createElement('div');
-        var cost = document.createElement('div');
-        var count = document.createElement('div');
-        var summa = document.createElement('div');
-        $(prod).addClass('fl-row').addClass('prod').appendTo(detail);
-        $(available).addClass('magenta-text').css('font-size','14px').css('font-weight','lighter').appendTo(detail);
-        $(cost).appendTo(detail);
-        $(count).appendTo(detail);
-        $(summa).addClass('fl-row').addClass('fl-hcenter').css('justify-content','flex-end').appendTo(detail);
+            var prod = document.createElement('div');
+            var available = document.createElement('div');
+            var cost = document.createElement('div');
+            var count = document.createElement('div');
+            var summa = document.createElement('div');
+            $(prod).addClass('fl-row').addClass('prod').appendTo(detail);
+            $(available).addClass('magenta-text').css('font-size','14px').css('font-weight','lighter').appendTo(detail);
+            $(cost).appendTo(detail);
+            $(count).appendTo(detail);
+            $(summa).addClass('fl-row').addClass('fl-hcenter').css('justify-content','flex-end').appendTo(detail);
             var prodImg = document.createElement('div');
-            $(prodImg).addClass('prod-img').css('background-image','url("./img/products/'+ item.product_id + '/' + item.images[0] +'")')
+            $(prodImg).addClass('prod-img').css('background-image','url("./img/products/'+ item2.product_id + '/' + item2.images[0] +'")')
                 .appendTo(prod);
             var prodName = document.createElement('div');
             $(prodName).addClass('fl-row').addClass('fl-hcenter').addClass('fl-vcenter').appendTo(prod);
+            if(item2.variant) {
+                var variant = getDiv();
+                $(variant).text(item2.variant).appendTo(prod);
+            }
             var prodNameText = document.createElement('span');
-            $(prodNameText).text(item.name).appendTo(prodName);
+            $(prodNameText).text(item2.name).appendTo(prodName);
 
             var availableName = document.createElement('div');
             $(availableName).addClass('fl-row').addClass('fl-hcenter').addClass('fl-vcenter').appendTo(available);
@@ -350,19 +356,20 @@ function generateCartFlat() {
             //alert(parseInt(item.product_cost));
             //var ttt = parseInt(item.product_cost).formatMoney(0,',',' ');
             //alert(ttt);
-            $(costNameText).text(parseInt(item.product_cost).formatMoney(0,',',' ')).appendTo(costName);
+            $(costNameText).text(parseInt(item2.product_cost).formatMoney(0,',',' ')).appendTo(costName);
 
             var summaName = document.createElement('div');
             $(summaName).addClass('fl-row').addClass('fl-hcenter').addClass('fl-vcenter').css('margin-right','47px')
                 .css('color','#5d5d5d').css('font-size','18px').addClass('italic').addClass('light').appendTo(summa);
             var summaNameText = document.createElement('span');
-            $(summaNameText).text(parseInt(item.summa).formatMoney(0,',',' ')).appendTo(summaName);
+            $(summaNameText).text(parseInt(item2.summa).formatMoney(0,',',' ')).appendTo(summaName);
             var deleteProd = document.createElement('img');
             $(deleteProd).attr('src','./img/cart_prod_del.png').css('cursor','pointer').css('margin-right','30px')
                 .appendTo(summa).on('click',function() {
                 var prData = {
                     id: i,
-                    func: 'delete'
+                    func: 'delete',
+                    variant: i2
                 };
                 cartData = $.ajax({
                     url: 'cart.php',
@@ -371,70 +378,74 @@ function generateCartFlat() {
                     dataType: 'json',
                     data: "update=" + prepareData(prData)
                 }).responseJSON;
-                if(cartData.details[i] == null) {
+                if(cartData.details[i] == null || cartData.details[i][i2] ==null) {
                     $(this).parent().parent().hide(200);
                 }
                 $('#itogo').text(parseInt(cartData.summa).formatMoney(0,","," "));
                 $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
                 $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
-
-            });
-
+        })
             var countBlock = document.createElement('div');
             $(countBlock).addClass('fl-row').css('background-color','#e9e9e9').width('140px').height('47px')
                 .appendTo(count);
-                var countBlockMinus = document.createElement('div');
-                $(countBlockMinus).css('cursor','pointer').width('40px').height('47px').addClass('fl-row')
-                    .css('color','#999999').css('font-weight','bold').css('font-size','18px')
-                    .addClass('fl-hcenter').addClass('fl-vcenter').html('<span>-</span>').appendTo(countBlock)
-                    .on('click',function(){
-                        var prData = {
-                            id: i,
-                            func: 'minus'
-                        };
-                        cartData = $.ajax({
-                           url: 'cart.php',
-                            async: false,
-                            method: 'POST',
-                            dataType: 'json',
-                            data: "update=" + prepareData(prData)
-                        }).responseJSON;
-                        $(countBlockCount).children('span').text(cartData.details[i].product_count);
-                        $(summaNameText).text(parseInt(cartData.details[i].summa).formatMoney(0,',',' '));
-                        $('#itogo').text(parseInt(cartData.summa).formatMoney(0,","," "));
-                        $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
-                        $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
-                    });
-                var countBlockCount = document.createElement('div');
-                $(countBlockCount).width('56px').height('47px').addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter')
-                    .css('color','#000').css('font-weight','bold').css('font-size','16px')
-                    .css('border-left','2px solid #dadada').css('border-right','2px solid #dadada')
-                    .html('<span>' + item.product_count + '</span>').appendTo(countBlock);
+            var countBlockMinus = document.createElement('div');
+            $(countBlockMinus).css('cursor','pointer').width('40px').height('47px').addClass('fl-row')
+                .css('color','#999999').css('font-weight','bold').css('font-size','18px')
+                .addClass('fl-hcenter').addClass('fl-vcenter').html('<span>-</span>').appendTo(countBlock)
+                .on('click',function(){
+                    var prData = {
+                        id: i,
+                        func: 'minus',
+                        variant: i2
+                    };
+                    cartData = $.ajax({
+                        url: 'cart.php',
+                        async: false,
+                        method: 'POST',
+                        dataType: 'json',
+                        data: "update=" + prepareData(prData)
+                    }).responseJSON;
+                    $(countBlockCount).children('span').text(cartData.details[i][i2].product_count);
+                    $(summaNameText).text(parseInt(cartData.details[i][i2].summa).formatMoney(0,',',' '));
+                    $('#itogo').text(parseInt(cartData.summa).formatMoney(0,","," "));
+                    $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
+                    $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
+                });
+            var countBlockCount = document.createElement('div');
+            $(countBlockCount).width('56px').height('47px').addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter')
+                .css('color','#000').css('font-weight','bold').css('font-size','16px')
+                .css('border-left','2px solid #dadada').css('border-right','2px solid #dadada')
+                .html('<span>' + item2.product_count + '</span>').appendTo(countBlock);
 
-                var countBlockPlus = document.createElement('div');
-                $(countBlockPlus).css('cursor','pointer').width('40px').height('47px').addClass('fl-row')
-                    .css('color','#999999').css('font-weight','bold').css('font-size','18px')
-                    .addClass('fl-hcenter').addClass('fl-vcenter').html('<span>+</span>').appendTo(countBlock)
-                    .on('click',function(){
-                        var prData = {
-                            id: i,
-                            func: 'plus'
-                        };
-                        cartData = $.ajax({
-                            url: 'cart.php',
-                            async: false,
-                            method: 'POST',
-                            dataType: 'json',
-                            data: "update=" + prepareData(prData)
-                        }).responseJSON;
-                        $(countBlockCount).children('span').text(cartData.details[i].product_count);
-                        $(summaNameText).text(parseInt(cartData.details[i].summa).formatMoney(0,',',' '));
-                        $('#itogo').text(parseInt(cartData.summa).formatMoney(0,","," "));
-                        $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
-                        $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
-                    });
+            var countBlockPlus = document.createElement('div');
+            $(countBlockPlus).css('cursor','pointer').width('40px').height('47px').addClass('fl-row')
+                .css('color','#999999').css('font-weight','bold').css('font-size','18px')
+                .addClass('fl-hcenter').addClass('fl-vcenter').html('<span>+</span>').appendTo(countBlock)
+                .on('click',function(){
+                    var prData = {
+                        id: i,
+                        func: 'plus',
+                        variant: i2
+                    };
+                    cartData = $.ajax({
+                        url: 'cart.php',
+                        async: false,
+                        method: 'POST',
+                        dataType: 'json',
+                        data: "update=" + prepareData(prData)
+                    }).responseJSON;
+                    $(countBlockCount).children('span').text(cartData.details[i][i2].product_count);
+                    $(summaNameText).text(parseInt(cartData.details[i][i2].summa).formatMoney(0,',',' '));
+                    $('#itogo').text(parseInt(cartData.summa).formatMoney(0,","," "));
+                    $('#cartSum').text(parseInt(cartData.summa).formatMoney(0, '.', ' '));
+                    $('#cartCount').replaceWith(generateCartCount(cartData.productsCount));
+                });
 
-        $(detail).appendTo(container);
+            $(detail).appendTo(container);
+
+            });
+
+
     });
 
     var bottomLine = document.createElement('div');
@@ -985,11 +996,12 @@ function generateProductFlat(product) {
         $(foto).width("470px").height("470px").addClass("fl-row")
             .css('background-color','#cccccc')
             .addClass('fl-row').appendTo($(gallery));
+            var azoom = document.createElement('a');
+            $(azoom).appendTo(foto).css('sefl-align','flex-start').attr('id','fotomodaltrigger')
+                .css('margin-top','25px').css('margin-left','25px').attr('href','#fotomodal').attr('pos', 'absolute');
             var zoom = document.createElement('div');
-            $(zoom).appendTo($(foto)).css('sefl-align','flex-start')
-                .css('margin-top','25px').css('margin-left','25px')
-                .css('background-image','url("./img/zoom.png")').width("25px").height("23px")
-                .css("cursor","pointer");
+            $(zoom).appendTo(azoom).css('background-image','url("./img/zoom.png")').width("25px").height("23px");
+
         var picBar = document.createElement('div');
         $(picBar).height("108px").addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter')
             .css('background-color','white').appendTo($(gallery));
@@ -1102,12 +1114,13 @@ function generateProductFlat(product) {
     $(buyButtonImg).css('margin-left','-5px').attr('src','./img/prod_cart.png').appendTo($(buyButton));
     var buyButtonText = document.createElement('span');
 
-    if(cartData.details[product.id]==null) {
+    // if(cartData.details[product.id]==null) {
         $(buyButtonText).text("Купить").appendTo($(buyButton));
         $(buyButton).on('click', function () {
                 var prData = {
                     id: product.id,
-                    cost: product.details.actionCost > 0 ? product.details.actionCost : product.details.currentCost
+                    cost: product.details.actionCost > 0 ? product.details.actionCost : product.details.currentCost,
+                    variant: specProdVarsSelect ? $(specProdVarsSelect).val() : false
                 }
                 $.ajax({
                     url: 'cart.php',
@@ -1119,25 +1132,25 @@ function generateProductFlat(product) {
                         alert("Товар добавлен!");
                         $('#cartSum').text(parseInt(msg.summa).formatMoney(0, '.', ' '));
                         $('#cartCount').replaceWith(generateCartCount(msg.productsCount));
-                        $('#buyButton').off('click');
-                        $('#buyButton').on('click', function () {
-                            prepareFlat();
-                            var cartFlat = generateCartFlat(cartData);
-                            $(cartFlat).appendTo($("#content"));
-                        });
-                        $('#buyButton span').text('В корзине')
+                        // $('#buyButton').off('click');
+                        // $('#buyButton').on('click', function () {
+                        //     prepareFlat();
+                        //     var cartFlat = generateCartFlat(cartData);
+                        //     $(cartFlat).appendTo($("#content"));
+                        // });
+                        //$('#buyButton span').text('В корзине')
                     }
                 })
             });
-    } else {
-        $(buyButtonText).text("В корзине").appendTo($(buyButton));
-
-        $(buyButton).on('click', function () {
-            prepareFlat();
-            var cartFlat = generateCartFlat(cartData);
-            $(cartFlat).appendTo($("#content"));
-        });
-    }
+    // } else {
+    //     $(buyButtonText).text("В корзине").appendTo($(buyButton));
+    //
+    //     $(buyButton).on('click', function () {
+    //         prepareFlat();
+    //         var cartFlat = generateCartFlat(cartData);
+    //         $(cartFlat).appendTo($("#content"));
+    //     });
+    // }
 
     var bonusFreeDelivery = productBonus("bonus-car.png","бесплатная доставка", "по всей России");
     var bonusHotLine = productBonus("bonus-man.png","горячая линия","8-800-000-00-00");
@@ -1208,6 +1221,7 @@ function generatePromoProductDiv(bgimage, double, alignRight, color, promoProd) 
             prepareFlat();
             prodcutFlat = generateProductFlat(promoProd);
             $(prodcutFlat).appendTo($("#content"));
+            $('#fotomodaltrigger').leanModal({top: 300, overlay: 0.45});
             $.ajax({
                 type: 'POST',
                 url: 'utils.php',
@@ -1308,6 +1322,13 @@ function checkRegData(usernameId, emailId, telId, passwdId, rpasswdId) {
     } else {
         alert("Введите пароль (не менее 6 символов)!")
     }
+}
+
+function showZoomFoto() {
+    var container = getDiv();
+
+    $(container).css('background-color','white').attr('id','fotomodal').addClass("layout").appendTo("body")
+        .width('300px').height('200px');
 }
 
 function showRegistration() {

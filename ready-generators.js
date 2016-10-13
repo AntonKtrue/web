@@ -52,6 +52,7 @@ function generateMainPromoScreen() {   // Генерация начальной 
                     prepareFlat();
                     prodcutFlat = generateProductFlat(msg.product);
                     $(prodcutFlat).appendTo($("#content"));
+                    $('#fotomodaltrigger').leanModal({top: auto, overlay: 0.45});
                     $.ajax({
                         type: 'POST',
                         url: 'utils.php',
@@ -123,6 +124,7 @@ function generateProductDiv(product) {
             prepareFlat();
             prodcutFlat = generateProductFlat(product);
             $(prodcutFlat).appendTo($("#content"));
+            $('#fotomodaltrigger').leanModal({top: auto, overlay: 0.45});
             $.ajax({
                 type: 'POST',
                 url: 'utils.php',

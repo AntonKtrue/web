@@ -141,15 +141,20 @@ function doLogin($login) {
             error_log("session product count: " . $_SESSION["cart"]["productsCount"]);
             $cart_id = createOpenCart($user_id);
             error_log("new cart id:" . $cart_id);
-            $s = $c->prepare("INSERT INTO order_details VALUES (?,?,?,?)");
-            foreach ($_SESSION["cart"]["details"] as $key => $value) {
-                $s->bind_param("iiid",
-                    $cart_id,
-                    $key,
-                    $value->product_count,
-                    $value->product_cost);
-                $s->execute();
-                error_log("add prodcut: " . $key );
+            $s = $c->prepare("INSERT INTO order_details VALUES (?,?,?,?,?)");
+            foreach ($_SESSION["cart"]["details"] as $key => $iterator) {
+
+                foreach($iterator as $key2=>$value) {
+                    $s->bind_param("iiids",
+                        $cart_id,
+                        $key,
+                        $value->product_count,
+                        $value->product_cost,
+                        $key2);
+                    $s->execute();
+                    error_log("add prodcut: cartId " . $cart_id . " key " . $key . " count " . $value->product_count . " cost " . $value->product_cost . " variant " . $key2 );
+                }
+
             }
             $s->close();
         } else {
