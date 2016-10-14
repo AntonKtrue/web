@@ -101,6 +101,10 @@ if(isset($_POST['data'])) {
                             break;
                     }
                     break;
+                case "delete_product":
+                    delete_product_in_order($data->id, $data->product, $data->variant);
+                    echo json_encode(array("result"=>"success"));
+                    break;
             }
             break;
 	}

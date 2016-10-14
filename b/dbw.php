@@ -117,5 +117,12 @@ function update_order_status($id,$status) {
     global $conn;
     $conn->query("update orders set status=$status where id=$id");
     $conn->commit();
+}
 
+function  delete_product_in_order($id, $product, $variant) {
+    global $conn;
+    $stmt = $conn->prepare("DELETE FROM order_details WHERE order_id=? AND product_id=? AND variant=?");
+    $stmt->bind_param("iis", $id, $product, $variant);
+    $stmt->execute();
+    $stmt->close();
 }

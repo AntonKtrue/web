@@ -69,10 +69,24 @@ if(isset($_POST['orders'])) {
 
 if(isset($_POST['order'])) {
     $order = json_decode($_POST['order']);
-    $query = $conn->query("SELECT orders.details FROM orders WHERE id = " . $order->id);
-    $out['details'] = $query->fetch_object();
-    $query = $conn->query("SELECT * FROM");
+    $query = $conn->query("SELECT id, orders.details FROM orders WHERE id = " . $order->id);
+    $out = $query->fetch_object();
+    $out->details = json_decode($out->details);
 
+
+    $sql = "SELECT products.name, product_id, product_count, product_cost, product_count*product_cost as summa, variant,
+                          IF(variant <> 'S', (SELECT JSON_EXTRACT(details,concat('$.vars.',variant) ) 
+                                              FROM webdip.products 
+                                              WHERE id=product_id ) ,'S') as variantName 
+                          FROM webdip.order_details 
+                          inner join products on products.id = order_details.product_id
+                          WHERE order_id = " . $order->id;
+    $query = $conn->query($sql);
+    error_log($sql);
+    $out->products =array();
+    while ($row = $query->fetch_object()) {
+        $out->products[] = $row;
+    }
 
 }
 

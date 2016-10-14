@@ -163,7 +163,7 @@ function buildOrdersData(orders) {
 
 	$.each(orders.orders, function(i, item){
 		//var orderRow = buildTableRow();
-		var orderRow = getDiv();
+		var orderRow = getDiv('orders');
 		$(orderRow).appendTo(container);
 		var cell1 = getDiv('cell1');
 		var cell2 = getDiv('cell2');
@@ -204,7 +204,7 @@ function buildOrdersData(orders) {
 			$(zst).removeClass('cur-status').appendTo($('.content-caption')).addClass('order-status')
 				.text("(" + $(zst).text() + ")");
 
-			content = buildOrderView();
+			content = buildOrderView(item.id);
 			$(content).appendTo($('#workspace'));
 
 		});
@@ -214,14 +214,77 @@ function buildOrdersData(orders) {
 	$(lastRow).appendTo(container);
 	return container;
 }
+function prepareData(prData) {
+	return encodeURIComponent(JSON.stringify(prData))
+}
 
-function buildOrderView() {
+function buildOrderView(orderId) {
 	var container = getDiv();
 	var orders = getDiv('orders-table');
 	$(orders).appendTo(container);
 	var ordersCaption = getDiv();
 	$(ordersCaption).text('содержимое заказа').appendTo(orders);
+	var prData = {
+		id: orderId
+	};
+	var orderData = $.ajax({
+		url: "content.php",
+		type: "POST",
+		async: false,
+		dataType: "json",
+		data: "order=" + prepareData(prData)
+	}).responseJSON;
 
+	$.each(orderData.products, function(i, item) {
+		var orderRow = getDiv('order');
+		$(orderRow).appendTo(container);
+		var cell1 = getDiv('cell1');
+		var cell2 = getDiv('cell2');
+		var cell3 = getDiv('cell3');
+		var cell4 = getDiv('cell4');
+		var cell5 = getDiv('cell5');
+		$(cell1).appendTo(orderRow);
+		if(item.variant == 'S') {
+			$(cell1).text(item.name);
+		} else {
+			$(cell1).html(item.name + "<div>" + item.variantName + "</div>");
+		}
+		$(cell2).text(parseInt(item.product_cost).formatMoney(0,","," ") + "руб.").appendTo(orderRow);
+		$(cell3).appendTo(orderRow);
+		var countBox = getDiv();
+		$(countBox).appendTo(cell3).text(item.product_count);
+		$(cell4).appendTo(orderRow).text(parseInt(item.summa).formatMoney(0,","," ") + "руб.");
+		$(cell5).appendTo(orderRow);
+		var deletePoint = document.createElement('a');
+		$(deletePoint).text('Удалить из списка').attr('href','#').on('click', function() {
+			var prData = {
+				target: 'order',
+				operation: 'delete_product',
+				id: orderId,
+				product: item.product_id,
+				variant: item.variant
+			}
+			var result = false;
+			$.ajax({
+				url: 'crud.php',
+				method: 'POST',
+				async: false,
+				dataType: 'json',
+				data: "data=" + prepareData(prData),
+				success: function (msg) {
+					if(msg.result == "success") {
+						result = true;
+					}
+				}
+			});
+			if(result) {
+				$(this).closest('.order').fadeOut(100);
+			}
+		}).appendTo(cell5);
+		$(orderRow).appendTo(orders);
+	});
+	var lastRow = getDiv();
+	$(lastRow).appendTo(orders);
 	return container;
 }
 

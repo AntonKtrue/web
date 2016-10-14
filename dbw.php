@@ -20,6 +20,8 @@ function close_cart($close) {
         $stmt->execute();
         $stmt->close();
         unset($_SESSION['order']);
+
+
     }
 }
 
@@ -191,4 +193,14 @@ function update_product($update) {
         $conn->commit();
     }
 
+}
+
+function systemlog($data) {
+    global $conn;
+    $stmt = $conn->prepare("INSERT INTO systemlog(time, category, details) VALUES(CURRENT_TIMESTAMP(),?,?)");
+    $category = $data['category'];
+    $details = json_encode($data['details']);
+    $stmt->bind_param("ss", $category, $details);
+    $stmt->execute();
+    $stmt->close();
 }

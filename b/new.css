@@ -662,41 +662,41 @@ input[type="radio"]:checked + label {
 	height: 59px;
 }
 
-.orders-table .cell1 {
+.orders-table .orders .cell1 {
 	align-items: center;
 	display: flex;
 	flex-flow: row nowrap;
 	width: 220px;
 }
-.orders-table .cell1 > span:nth-child(1) {
+.orders-table .orders .cell1 > span:nth-child(1) {
 	color: #3498db;
 	margin-left: 28px;
 }
-.orders-table .cell1 > span:nth-child(2) {
+.orders-table .orders .cell1 > span:nth-child(2) {
 	color: #7f8c8d;
 }
-.orders-table .cell1 > span:nth-child(3) {
+.orders-table .orders .cell1 > span:nth-child(3) {
 	color: #2c3e50;
 }
 
-.orders-table .cell2 {
+.orders-table .orders .cell2 {
 	width: 100px;
 }
-.orders-table .cell3 {
+.orders-table .orders .cell3 {
 	align-items: center;
 	justify-content: center;
 	display: flex;
 	flex-flow: row nowrap;
 	width: 120px;
 }
-.orders-table .cell4 {
+.orders-table .orders .cell4 {
 	align-items: center;
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: flex-end;
 	width: 160px;
 }
-.orders-table .cell5 {
+.orders-table .orders .cell5 {
 	align-items: center;
 	display: flex;
 	flex-flow: row nowrap;
@@ -749,4 +749,64 @@ input[type="radio"]:checked + label {
 	text-transform: lowercase;
 	border-bottom: 1px dashed;
 	font-size: 24px;
+}
+.orders-table > div.order {
+	padding-left: 20px;
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	font-size: 14px;
+}
+.orders-table > div.order > .cell1 {
+	 width: 180px;
+	 color: #3498db;
+ }
+
+.orders-table > div.order > .cell1 > div {
+	font-size: 12px;
+	color: #999999;
+}
+.orders-table > div.order > .cell2 {
+	width: 140px;
+	color: #34495e;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+}
+.orders-table > div.order > .cell3 {
+	width: 100px;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+}
+.orders-table > div.order > .cell3 > div {
+	width: 32px;
+	height: 25px;
+	border: 1px solid #dee1e2;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+}
+.orders-table > div.order > .cell4 {
+	width: 140px;
+	color: #34495e;
+	display: flex;
+	font-weight: bold;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+}
+.orders-table > div.order > .cell5 {
+	   width: 145px;
+
+	   flex-flow: row nowrap;
+	   justify-content: center;
+	   align-items: center;
+   }
+.orders-table > div.order > .cell5 > a {
+	color: #c73b3b;
+	font-weight: bolder;
 }
