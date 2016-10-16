@@ -4,6 +4,15 @@ if(!isset($_SESSION["admin"])) die();
 require_once("../db.php");
 $conn = db_conn();
 $out = array();
+
+if(isset($_POST['admin'])) {
+    global $conn;
+    $query = $conn->query("SELECT login FROM users WHERE login = '".$_SESSION['user'].
+        "' AND hash = '".$_SESSION['hash']."'");
+    $out = $query->fetch_object();
+    $out->userData = json_decode($out->uerData);
+
+}
 if(isset($_POST['categories'])) {
 	$query = $conn->query("select * from categories");	
 	while($row = $query->fetch_assoc()) {		
@@ -69,9 +78,15 @@ if(isset($_POST['orders'])) {
 
 if(isset($_POST['order'])) {
     $order = json_decode($_POST['order']);
-    $query = $conn->query("SELECT id, orders.details FROM orders WHERE id = " . $order->id);
+    $query = $conn->query("SELECT users.login, orders.id, orders.details, users.userData, sum(product_count*product_cost) as summa 
+                           FROM webdip.orders
+                           inner join users on users.id = orders.user_id
+                           inner join order_details on order_details.order_id = orders.id
+                          where orders.id = " . $order->id);
     $out = $query->fetch_object();
     $out->details = json_decode($out->details);
+    $out->userData = json_decode($out->userData);
+
 
 
     $sql = "SELECT products.name, product_id, product_count, product_cost, product_count*product_cost as summa, variant,

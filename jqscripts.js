@@ -89,6 +89,8 @@ function show_usermenu() {
             var loginButtonImage = document.createElement('img');
             var loginButtonText = document.createElement('div');
             var registerButton = document.createElement('div');
+
+
             $(loginButton).addClass("fl-row")
                 .addClass("fl-vcenter")
                 .css("height", "100%")
@@ -125,6 +127,16 @@ function show_usermenu() {
                             dataType: 'json',
                             data: 'getAccount'
                         }).responseJSON;
+                        if(userData.accessLevel == "1") {
+                            var adminka = document.createElement('a');
+                            $(adminka).css({'color':'#2ecc71','font-size':'16px','font-weight':'bold',
+                            'margin-left':'20px'})
+                                .appendTo($('#accmodal')).text('Администрирование').attr('href','#')
+                                .on('click', function () {
+                                    window.location = './b';
+                                });
+                        }
+
                         $('#accfio').val(userData.userData.name);
                         $('#acctel').val(userData.userData.tel);
                         $('#accemail').val(userData.login);
@@ -137,6 +149,7 @@ function show_usermenu() {
                             var order = generateAccOrder(item);
                             $(order).css('margin-bottom','40px').appendTo($('#selfOrdersContent'));
                         });
+
                     });
                 $(registerButton).text("Выход").attr('id', '').attr('href', '#')
                     .on('click', function () {
@@ -1074,7 +1087,7 @@ function generateProductFlat(product) {
         .css('max-height','200px').css('overflow','auto')
         .css('font-size','14px').css('color','#555555').css('font-weight','lighter').appendTo($(specification));
 
-    if($(product.details.vars).size() > 0 ) {
+    if(product.details.vars!=null && Object.keys(product.details.vars).length > 0 ) {
         var specProdVars = document.createElement('div');
         var specProdVarsCaption = document.createElement('span');
         $(specProdVarsCaption).text("Выберите вариант:").appendTo($(specProdVars));
@@ -1441,7 +1454,7 @@ function showAccount() {
     layoutCaptionText = document.createElement('h1');
     $(layoutCaptionText).text("Личный кабинет").appendTo($(layoutCaption));
     layoutBody = document.createElement('div');
-    $(layoutBody).css('height', '1153px').addClass("fl-row").appendTo($(layout));
+    $(layoutBody).css('height', '1200px').addClass("fl-row").appendTo($(layout));
     layoutCol1 = document.createElement('div');
     layoutCol2 = document.createElement('div');
     $(layoutCol1).addClass("layout-half-col").appendTo($(layoutBody));
@@ -1486,7 +1499,7 @@ function showAccount() {
     $(saveSubmit).addClass('redbutton').addClass('hidemodal').appendTo(layoutCol1);
     saveSubmitText = document.createElement('span');
     $(saveSubmitText).text('Сохранить').appendTo(saveSubmit);
-    $(saveSubmit).css("width", "134px")
+    $(saveSubmit).css("width", "134px").css('margin-bottom','20px')
         .on('click', function (e) {
             e.preventDefault();
             var canUpdate = true;

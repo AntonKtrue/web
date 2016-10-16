@@ -26,7 +26,7 @@ if(isset($_POST['getAccount'])) {
         $user = $_SESSION['user'];
         $hash = $_SESSION['hash'];
         error_log("user: " . $user . ", hash:" . $hash);
-        $q = $c->query("SELECT id, login, userData FROM users WHERE login = '$user' AND hash = '$hash'");
+        $q = $c->query("SELECT id, login, userData, accessLevel FROM users WHERE login = '$user' AND hash = '$hash'");
         if($q->num_rows==1) {
             $result = $q->fetch_object();
             $result->userData = json_decode($result->userData);

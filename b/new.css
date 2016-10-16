@@ -503,7 +503,7 @@ input[type="radio"]:checked + label {
 	border-bottom: 1px solid #dee1e2;
 	height: 46px;
 }
-.user-info > div:not(:first-child) {
+.user-info > div:not(:first-child):not(#orderComment) {
 	display: flex;
 	flex-flow: row nowrap;
 	padding-left: 18px;
@@ -515,7 +515,7 @@ input[type="radio"]:checked + label {
 	display: flex;
 	flex-flow: column nowrap;
 }
-.user-info > div:not(:first-child) > div:not(:first-child) {
+.user-info > div:not(:first-child) > div:not(:first-child):not(#infoComment) {
 	margin-left: 24px;
 }
 /*label fields */
@@ -556,6 +556,33 @@ input[type="radio"]:checked + label {
 	height: 25px;
 	border: 1px solid #dee1e2;
 	margin-right: 16px;
+}
+
+.user-info #infoMethod {
+	border: none;
+	display: flex;
+	flex-flow: row wrap;
+}
+#orderComment {
+	display: flex;
+	flex-flow: column nowrap;
+	margin-left: 18px;
+	margin-bottom: 24px;
+}
+#orderComment > div:first-child {
+	color: #999999;
+	font-size: 14px;
+	font-weight: lighter;
+}
+#orderComment > div:last-child {
+	width: 429px;
+	height: 76px;
+	border: 1px solid #dee1e2;
+	padding-left: 5px;
+	color: black;
+	font-size: 16px;
+	font-weight: lighter;
+	overflow-y: auto;
 }
 
 .shadow {
@@ -702,8 +729,16 @@ input[type="radio"]:checked + label {
 	flex-flow: row nowrap;
 	justify-content: center;
 	width: 169px;
+
 }
 
+
+
+.orders-table .orders .cell5 > a {
+	color: #8e44ad;
+	font-size: 14px;
+	font-weight: bolder;
+}
 /*выбор статусов*/
 .set-status-container {
 	display: flex;
@@ -810,3 +845,25 @@ input[type="radio"]:checked + label {
 	color: #c73b3b;
 	font-weight: bolder;
 }
+
+.orders-table .itog-sum-box {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: flex-end;
+	color: black;
+	font-weight: lighter;
+	height: 30px;
+	margin-left: 15px;
+	margin-right: 20px;
+}
+.orders-table .itog-sum-box > div:first-child {
+	font-size: 42.7px;
+	line-height: 30px;
+
+}
+.orders-info .itog-sum-box > div:last-child {
+	font-size: 21.35px;
+	line-height: 15px;
+
+}
+

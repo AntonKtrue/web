@@ -44,8 +44,10 @@ function generateMainFrame() {
 	$(mainFrameContainer).addClass('main-frame shadow').addClass('fl-row').css('margin-bottom','30px');
 
 	leftMenuCol = document.createElement('div');
-	$(leftMenuCol).css('min-height','996px').addClass('fl-col').addClass('gray-blue-bg').appendTo(
-			$(mainFrameContainer));
+	$(leftMenuCol).css('min-height','996px').addClass('fl-col').addClass('gray-blue-bg')
+		.appendTo(mainFrameContainer);
+	leftMenuColSpacer = getDiv('fl-col fl-space');
+	$(leftMenuColSpacer).css('height','100%').css('order','2').appendTo(leftMenuCol);
 
 	rightContent = document.createElement('div');
 	$(rightContent).addClass('fl-col').attr('id', 'rightContent').addClass(
@@ -56,10 +58,37 @@ function generateMainFrame() {
 	$(workspace).addClass("fl-col").attr('id', 'workspace').appendTo(
 			$(rightContent));
 	mainLogo = generateMainLogo();
-	$(mainLogo).appendTo($(leftMenuCol));
+	$(mainLogo).css('order','1').appendTo($(leftMenuCol));
 
 	menuItems = generateMenuItems();
-	$(menuItems).appendTo($(leftMenuCol));
+	$(menuItems).appendTo($(leftMenuColSpacer));
+
+	var adminData = $.ajax({
+		url: 'content.php',
+		dataType: 'json',
+		async: false,
+		data: "admin",
+		method: 'POST'
+	}).responseJSON;
+	var loginBox = getDiv('fl-col fl-hcenter fl-vcenter');
+	$(loginBox).appendTo(leftMenuColSpacer).css('font-size','16px');
+	var userName = getDiv()
+	$(userName).text(adminData.login).appendTo(loginBox).css('color','#fff');
+	var logOutButton = document.createElement('a');
+	$(logOutButton).appendTo(loginBox).css('color','#2ecc71').css('margin-bottom','20px').attr('href','#').text('выйти')
+		.on('click', function() {
+			$.ajax({
+				type: 'POST',
+				url: '../login.php',
+				dataType: 'text',
+				data: 'logout',
+				success: function () {
+					window.location = '../index.php';
+				}
+			});
+		});
+
+
 
 	return mainFrameContainer;
 }
@@ -79,6 +108,8 @@ function generateMenuItems() {
 	categoriesItem = generateMenuItem("категории", "categories",
 			"../img/b_categories.png", "../img/b_categories_a.png");
 	$(categoriesItem).appendTo($(menuItemsContainer));
+
+
 
 	return menuItemsContainer;
 }
@@ -191,8 +222,9 @@ function buildOrdersData(orders) {
 		var orderDate = "<span>" + date[2] + "." + date[1] + "." + date[0] + " в " + time[0] + ":" + time[1] + "</span>";
 		$(orderDate).appendTo(cell4);
 
-		var orderView = getDiv();
-		$(orderView).text('просмотр').appendTo(cell5).on('click', function(){
+		var orderView = document.createElement('a');
+		$(orderView).attr('href','#').text('просмотр').appendTo(cell5).on('click', function(){
+
 			$('#workspace').empty();
 			$('.content-caption').empty();
 
@@ -274,17 +306,40 @@ function buildOrderView(orderId) {
 				success: function (msg) {
 					if(msg.result == "success") {
 						result = true;
+						$('#orderItogSum').text(parseInt(msg.order.summa).formatMoney(0,",",' '));
 					}
 				}
 			});
 			if(result) {
 				$(this).closest('.order').fadeOut(100);
+
 			}
 		}).appendTo(cell5);
 		$(orderRow).appendTo(orders);
 	});
-	var lastRow = getDiv();
-	$(lastRow).appendTo(orders);
+	var lastRow = getDiv('fl-row');
+	$(lastRow).appendTo(orders).css('justify-content','flex-end').css('align-items','center');
+	var itogSumTextBox = getDiv('fl-col');
+	var itogSumTextUp = getDiv();
+	$(itogSumTextUp).text("итоговая").appendTo(itogSumTextBox);
+	var itogSumTextDown = getDiv();
+	$(itogSumTextDown).text("сумма").appendTo(itogSumTextBox);
+	$(itogSumTextBox).css('align-items','flex-end')
+		.css('font-size','16px').css('font-weight','bold')
+		.css('color','#3498db').appendTo(lastRow);
+	var itogSumBox = getDiv('itog-sum-box');
+	var sum = getDiv();
+	var rub = getDiv();
+	$(sum).attr('id','orderItogSum').text(parseInt(orderData.summa).formatMoney(0,',',' ')).appendTo(itogSumBox);
+	$(rub).text('руб.').appendTo(itogSumBox);
+	$(itogSumBox).appendTo(lastRow);
+
+	var orderInfo = generateOrderInfo(orderData);
+	$(orderInfo).css('margin-top','20px').appendTo(container);
+
+
+
+
 	return container;
 }
 
@@ -508,6 +563,93 @@ function generateOrdersView(userData) {
 	$(itogoSumSum).appendTo(itogoSum);
 	$(itogoSumRub).appendTo(itogoSum);
 	return container;
+}
+function generateOrderInfo(orderInfo) {
+	var container = getDiv('fl-col');
+	var userInfo = getDiv('user-info');
+	var ordersInfo = getDiv('fl-col');
+	var deleteUser = getDiv();
+	$(userInfo).appendTo(container);
+	var userInfoCaption = getDiv();
+	$(userInfoCaption).text('информация о зказе').appendTo(userInfo);
+	var userInfoDetails = getDiv();
+	$(userInfoDetails).appendTo(userInfo);
+	var userInfoDetailsCol1 = getDiv();
+	$(userInfoDetailsCol1).appendTo(userInfoDetails);
+	var userInfoDetailsCol2 = getDiv();
+	$(userInfoDetailsCol2).width('211px').appendTo(userInfoDetails);
+	var userInfoDetailsCol3 = getDiv();
+	$(userInfoDetailsCol3).appendTo(userInfoDetails);
+
+	var userInfoName = generateLabelField("Контактное лицо (ФИО):", "infoName");
+	var userInfoTel = generateLabelField("Контактный телефон:","infoTel");
+	var userInfoEmail = generateLabelField("E-mail","infoEmail");
+	var userInfoCity = generateLabelField("Город:","infoCity");
+	var userInfoStreet = generateLabelField("Улица:","infoStreet");
+	var userInfoHome = generateLabelField("Дом:", "infoHome");
+	var userInfoFlat = generateLabelField("Квартира", "infoFlat");
+
+	var orderInfoMethod = generateLabelField("Способ доставки:", "infoMethod");
+	$(orderInfoMethod).appendTo(userInfoDetailsCol3);
+	var orderComment = generateLabelField("Комментарий к заказу:","infoComment");
+	$(orderComment).attr('id','orderComment').appendTo(userInfo);
+
+	$(userInfoName).children('div:last-child').text(orderInfo.userData.fio);
+	$(userInfoTel).children('div:last-child').text(orderInfo.userData.tel);
+	$(userInfoEmail).children('div:last-child').text(orderInfo.login);
+	$(userInfoCity).children('div:last-child').width('206px').text(orderInfo.details.infoCity);
+	$(userInfoStreet).children('div:last-child').width('206px').text(orderInfo.details.infoStreet);
+	$(userInfoHome).children('div:last-child').text(orderInfo.details.infoHome);
+	$(userInfoFlat).children('div:last-child').text(orderInfo.details.infoFlat);
+	$(orderComment).children('div:last-child').text(orderInfo.details.infoComment);
+	$(orderInfoMethod).children('div:last-child').html(getMethod(orderInfo.details.infoMethod))
+		.css('font-size','16px');
+
+	$(userInfoName).appendTo(userInfoDetailsCol1);
+	$(userInfoTel).appendTo(userInfoDetailsCol1);
+	$(userInfoEmail).appendTo(userInfoDetailsCol1);
+	$(userInfoCity).appendTo(userInfoDetailsCol2);
+	$(userInfoStreet).appendTo(userInfoDetailsCol2);
+	var homeBox = getDiv('fl-row');
+	$(homeBox).appendTo(userInfoDetailsCol2);
+	$(userInfoHome).width('75px').appendTo(homeBox);
+	$(userInfoFlat).width('100px').appendTo(homeBox);
+
+	var cancelBox = getDiv('fl-row');
+	$(cancelBox).css('justify-content','flex-end').appendTo(container);
+	var canelBoxText = document.createElement('a');
+	$(canelBoxText).css({'color':'#ad0000','font-weight':'lighter','font-size':'17.8px',
+		'margin-right':'32px', 'margin-top':'29px'})
+		.attr('href','#').text('Отменить заказ').on('click', function() {
+		var prData = {
+			target: 'order',
+			operation: 'remove',
+			id: orderInfo.id
+		}
+
+		$.ajax({
+			type : 'POST',
+			url : 'crud.php',
+			async: false,
+			dataType : 'json',
+			data : 'data='+ prepareData(prData),
+			success : function() {
+				$(ordersItem).trigger('click');
+			} })
+		}).appendTo(cancelBox);
+	return container;
+}
+
+function getMethod(method) {
+	switch(method) {
+		case "courier": return "Курьерская доставка<br> с оплатой при получении";
+			break;
+		case "rpost": return "Почта России<br> с наложенным платежом";
+			break;
+		case "qpost": return "Доставка через терминалы<br> QIWI Post";
+			break;
+	}
+
 }
 
 function generateViewUser() {

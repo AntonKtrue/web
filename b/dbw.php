@@ -125,4 +125,15 @@ function  delete_product_in_order($id, $product, $variant) {
     $stmt->bind_param("iis", $id, $product, $variant);
     $stmt->execute();
     $stmt->close();
+    $query = $conn->query("SELECT id, orders.details, sum(product_count*product_cost) as summa FROM orders, order_details WHERE id = " . $id . " AND order_id =  " . $id);
+    return $query->fetch_object();
+
+}
+
+function remove_order($id) {
+    global $conn;
+    $conn->query("DELETE FROM orers WHERE id=$id");
+    $conn->commit();
+    $conn->query("DELETE FROM order_details WHERE order_id=$id");
+    $conn->commit();
 }
