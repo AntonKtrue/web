@@ -161,19 +161,7 @@ header {
 	width: 170px;
 	height: 120px;
 }
-.cat-area {
-	width: 800px;
-	height: 60px;
-}
-.cat-element-area {
-	width: 130px;
-	min-width: 130px;
-	height: 60px;
-}
-.cat-element-area:hover {
-	background-color: #021563;
-	color: #fff;
-}
+
 .user-menu-area {
 	width: 200px;
 	height: 117px;
@@ -356,6 +344,49 @@ header {
 	border: 2px solid #dbdbdb;
 }
 
+.cat-area {
+	width: 800px;
+	height: 60px;
+	overflow: hidden;
+}
+.cat-area > .cat-line {
+	height: 60px;
+    display: flex;
+    flex-flow: row nowrap;
+}
+.cat-area > div > div {
+    display: flex;
+    text-transform: uppercase;
+    justify-content: center;
+    align-items: center;
+    width: 130px;
+    min-width: 130px;
+    height: 60px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+
+}
+.cat-area > div > div:hover {
+    background-color: #021563;
+    color: #fff;
+}
+.cat-element-area {
+	width: 130px;
+	min-width: 130px;
+	height: 60px;
+}
+.cat-element-area:hover {
+	background-color: #021563;
+	color: #fff;
+}
+
+.scroll-cat {
+	overflow: hidden;
+}
+.scroll-cat ul {
+
+}
 .scroll-img {
 	width: 320px;
 	height: 64px;

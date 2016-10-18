@@ -262,30 +262,73 @@ function generateCartCount(count) {
 }
 
 function generateCategories() { //TODO доделать прокрутку
-    var categoriesLine = document.createElement('div');
-    $(categoriesLine).addClass("fl-row")
-        .addClass("cat-area")
-        .addClass("white-bg");
-    $.each(categoriesData, function(i, item) {
-        var catElement = document.createElement('div');
-        var catElementText = document.createElement('span');
-        $(catElementText).text(item.name).css('text-align','center').appendTo($(catElement));
-        $(catElement).addClass("cat-element-area")
-            .addClass("fl-row")
-            .addClass("fl-vcenter")
-            .addClass("fl-hcenter")
-            .addClass("uppercase")
-            .css("font-size", "14px")
-            .css('cursor', 'pointer')
-            .on('click', function () {
-                //alert("category " + categoriesData[item.id].name + " clicked");
-                prepareFlat();
-                categoryFlat = generateCategoryFlat(i);
-                $(categoryFlat).appendTo($("#content"));
-            });
-        $(catElement).appendTo($(categoriesLine));
+    var container = document.createElement('div');
+    $(container).addClass("fl-row cat-area white-bg").on('mouseover', function(e) {
+        var parentOffest = $(this).offset();
+        var blockWidth = parseInt($(catLine).css('width'));
+        console.log(" Status: " + $(catLine).queue());
+        var relX = e.pageX - parentOffest.left;
+        //var relY = e.pageY - parentOffest.top;
+        var currentMargin = parseInt($(catLine).css('margin-left'));
+        if($(catLine).queue() != 'inprogress')
+        if (relX > 760 && relX < 800) {
+            if(blockWidth-800+currentMargin < 130 && blockWidth-800+currentMargin > 0) {
+                $(catLine).animate({'margin-left': (currentMargin - (blockWidth+currentMargin-800)) + 'px' });
+                console.log("1 BLOCKWIDTH: " + blockWidth + "; CurrentMargin: " + currentMargin + "; Correction: " + (currentMargin - (blockWidth+currentMargin-800)) + 'px; Status: ' + $(catLine).queue());
+            } else if(blockWidth-800+currentMargin>130) {
+                $(catLine).animate({'margin-left': (currentMargin-130) + 'px'});
+                console.log("2 BLOCKWIDTH: " + blockWidth + "; CurrentMargin: " + currentMargin + "; Correction: " + (currentMargin-130) + 'px; Status: ' + $(catLine).queue());
+            }
+        } else if(relX > 0 && relX < 40) {
+            if((currentMargin) < 0 && (currentMargin) > -130) {
+                $(catLine).animate({'margin-left': '0px'});
+                console.log("3 BLOCKWIDTH: " + blockWidth + "; CurrentMargin: " + currentMargin + "; Correction: " +  '0px; Status: ' + $(catLine).queue());
+            } else if (currentMargin < - 130) {
+                $(catLine).animate({'margin-left': (currentMargin + 130) + 'px'});
+                console.log("4 BLOCKWIDTH: " + blockWidth + "; CurrentMargin: " + currentMargin + "; Correction: " + (currentMargin+130) + 'px; Status: ' + $(catLine).queue());
+            }
+        }
+
+
+
+        //if(((blockWidth-800)+currentMargin+130<130) && relX > 0 && relX < 40) {$(catLine).animate({'margin-left': currentMargin+130 + 'px'},500);}
+        //if(((blockWidth-800)+currentMargin+130>130) && relX > 760 && relX < 800) {$(catLine).animate({'margin-left': currentMargin-130 + 'px'},500);}
+        //if(((blockWidth-800)+currentMargin+130>130) && relX > 760 && relX < 800) {$(catLine).animate({'margin-left': currentMargin-130 + 'px'},500);}
     });
-    return categoriesLine;
+
+    var catCount = Object.keys(categoriesData).length;
+    var lineWidth = 130 * catCount;
+    var catLine = getDiv('cat-line');
+   // $(catLine).appendTo(container);
+    $(catLine).appendTo(container).css('width',lineWidth + "px");
+    $.each(categoriesData, function (i,item) {
+        var catElementBox = getDiv();
+        var catElementText = getDiv();
+        $(catElementText).text(item.name).appendTo(catElementBox);
+        $(catElementBox).appendTo(catLine);
+    });
+
+
+    // $.each(categoriesData, function(i, item) {
+    //     var catElement = document.createElement('div');
+    //     var catElementText = document.createElement('span');
+    //     $(catElementText).text(item.name).css('text-align','center').appendTo($(catElement));
+    //     $(catElement).addClass("cat-element-area")
+    //         .addClass("fl-row")
+    //         .addClass("fl-vcenter")
+    //         .addClass("fl-hcenter")
+    //         .addClass("uppercase")
+    //         .css("font-size", "14px")
+    //         .css('cursor', 'pointer')
+    //         .on('click', function () {
+    //             //alert("category " + categoriesData[item.id].name + " clicked");
+    //             prepareFlat();
+    //             categoryFlat = generateCategoryFlat(i);
+    //             $(categoryFlat).appendTo($("#content"));
+    //         });
+    //     $(catElement).appendTo($(categoriesLine));
+    // });
+    return container;
 }
 function generateCartFlat() {
 

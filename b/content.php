@@ -7,10 +7,10 @@ $out = array();
 
 if(isset($_POST['admin'])) {
     global $conn;
-    $query = $conn->query("SELECT login FROM users WHERE login = '".$_SESSION['user'].
+    $query = $conn->query("SELECT login, userData FROM users WHERE login = '".$_SESSION['user'].
         "' AND hash = '".$_SESSION['hash']."'");
     $out = $query->fetch_object();
-    $out->userData = json_decode($out->uerData);
+    $out->userData = json_decode($out->userData);
 
 }
 if(isset($_POST['categories'])) {
