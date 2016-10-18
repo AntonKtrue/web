@@ -305,7 +305,12 @@ function generateCategories() { //TODO доделать прокрутку
         var catElementBox = getDiv();
         var catElementText = getDiv();
         $(catElementText).text(item.name).appendTo(catElementBox);
-        $(catElementBox).appendTo(catLine);
+        $(catElementBox).on('click', function () {
+                        //alert("category " + categoriesData[item.id].name + " clicked");
+                         prepareFlat();
+                         categoryFlat = generateCategoryFlat(i);
+                         $(categoryFlat).appendTo($("#content"));
+                     }).appendTo(catLine);
     });
 
 
