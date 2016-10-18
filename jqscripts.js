@@ -973,7 +973,7 @@ function generateCategoryFlat(categoryId) {
 function getCatBody(products, count) {
     var container = document.createElement('div');
     $(container).addClass('fl-col');
-    if(count > 1) {
+    if(count > 0) {
         var descRow = document.createElement('div');
         var description = document.createElement('div');
         $(description).appendTo($(descRow)).addClass('category-desc').addClass('fl-col');
