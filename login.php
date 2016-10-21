@@ -18,6 +18,18 @@ if(isset($_POST['register'])) {
     $login = array("user"=>$register->email,"password"=>$register->password);
     doLogin($login);
     $response["result"]="success";
+    $log = array(
+        "category"=>"login",
+        "details"=>array(
+            "session"=>session_id(),
+            "user"=>$user==session_id() ? "guest" : $user,
+            "operation"=>array(
+                "action"=>"register",
+                "userData"=>$userData
+            )
+        )
+    );
+    systemlog($log);
 }
 
 
@@ -25,7 +37,7 @@ if(isset($_POST['getAccount'])) {
     if(isset($_SESSION['hash']) && isset($_SESSION['user'])) {
         $user = $_SESSION['user'];
         $hash = $_SESSION['hash'];
-        error_log("user: " . $user . ", hash:" . $hash);
+
         $q = $c->query("SELECT id, login, userData, accessLevel FROM users WHERE login = '$user' AND hash = '$hash'");
         if($q->num_rows==1) {
             $result = $q->fetch_object();
@@ -51,7 +63,18 @@ if(isset($_POST['getAccount'])) {
         } else {
             echo json_encode(array("result"=>"error"));
         }
-
+    $log = array(
+            "category"=>"account",
+            "details"=>array(
+                "session"=>session_id(),
+                "user"=>$user==session_id() ? "guest" : $user,
+                "operation"=>array(
+                    "action"=>"getAccount",
+                    "result"=>$result
+                )
+            )
+        );
+        systemlog($log);
     }
     return;
 }
@@ -70,7 +93,18 @@ if(isset($_POST['update'])) {
         $_SESSION['user'],
         $_SESSION['hash']);
     $s->execute();
-
+    $log = array(
+        "category"=>"user",
+        "details"=>array(
+            "session"=>session_id(),
+            "user"=>$user==session_id() ? "guest" : $user,
+            "operation"=>array(
+                "action"=>"update",
+                "data"=>$data
+            )
+        )
+    );
+    systemlog($log);
     if(isset($data->passw)) {
         $newpass = md5($data->passw);
 
@@ -175,6 +209,18 @@ function doLogin($login) {
         $_SESSION['hash'] = $hash;
         $_SESSION['user'] = $login["user"];
         $_SESSION['order'] = $cart_id;
+        $log = array(
+            "category"=>"login",
+            "details"=>array(
+                "session"=>session_id(),
+                "user"=>$_SESSION['user'],
+                "operation"=>array(
+                    "action"=>"login",
+                    "cart"=>$cart_id
+                )
+            )
+        );
+        systemlog($log);
         if($res->accessLevel==1) $_SESSION["admin"]=true;
         error_log("exit_cart_id:" . $cart_id);
         updateHash($login, $hash);

@@ -27,6 +27,7 @@ function close_cart($close) {
 
 function open_cart($user, $hash=null ) {
     global $conn;
+
     if($hash) {
         if(isset($_SESSION['order'])) {
             $cart_id = $_SESSION['order'];
@@ -66,6 +67,18 @@ function open_cart($user, $hash=null ) {
                 $result->details->{$row->product_id}->{$row->variant}->variant = $query2->fetch_object()->variant;
             }
         }
+        $log = array(
+            "category"=>"cart",
+            "details"=>array(
+                "session"=>session_id(),
+                "user"=>$user==session_id() ? "guest" : $user,
+                "operation"=>array(
+                    "action"=>"open_cart",
+                    "cart"=>isset($_SESSION['cart']) ? "PHP_SESSION_CART" : $_SESSION['order']
+                )
+            )
+        );
+        systemlog($log);
         return $result;
     } else {
         if(isset($_SESSION["cart"])) {
@@ -93,6 +106,18 @@ function open_cart($user, $hash=null ) {
                 "details"=>array()
             );
         }
+        $log = array(
+            "category"=>"cart",
+            "details"=>array(
+                "session"=>session_id(),
+                "user"=>$user==session_id() ? "guest" : $user,
+                "operation"=>array(
+                    "action"=>"open_cart",
+                    "cart"=>isset($_SESSION['cart']) ? "PHP_SESSION_CART" : $_SESSION['order']
+                )
+            )
+        );
+        systemlog($log);
         return $_SESSION["cart"];
     }
 }
