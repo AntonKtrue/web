@@ -1,69 +1,201 @@
 {
-  "productsCount": "16",
-  "summa": "136161.00",
-  "details": {
-    "127": {
-      "id": "1",
-      "order_id": "1",
-      "product_id": "127",
-      "product_count": "1",
-      "product_cost": "340.00",
-      "images": [
-        "5cf52b4518286d3e74a3856c5656599c"
-      ]
-    },
-    "46": {
-      "id": "2",
-      "order_id": "1",
-      "product_id": "46",
-      "product_count": "1",
-      "product_cost": "33950.00",
-      "images": [
-        "a48d9cb5a5262ebb0c44ae39458bc111"
-      ]
-    },
-    "86": {
-      "id": "7",
-      "order_id": "1",
-      "product_id": "86",
-      "product_count": "1",
-      "product_cost": "2500.00",
-      "images": [
-        "691f8069b014887af6cce11dfdbd04e1",
-        "e6cc4f7aa07cc458cc0f114249e78f44"
-      ]
-    },
-    "13": {
-      "id": "9",
-      "order_id": "1",
-      "product_id": "13",
-      "product_count": "1",
-      "product_cost": "19433.00",
-      "images": [
-        "26dd9c280345c4fd40d539be80b9a46c"
-      ]
-    },
-    "80": {
-      "id": "14",
-      "order_id": "1",
-      "product_id": "80",
-      "product_count": "1",
-      "product_cost": "2429.00",
-      "images": [
-        "147560ecb7c48f3b6727af2ccd9206a3",
-        "82eaa3a1857eeda0d6b0ec1628bce64b",
-        "db45cd0bfed8b24f57d48763f43ceff9"
-      ]
-    },
-    "44": {
-      "id": "16",
-      "order_id": "1",
-      "product_id": "44",
-      "product_count": "1",
-      "product_cost": "19180.00",
-      "images": [
-        "0b5f598f693cb0727b730ca3dfdb1863"
-      ]
-    }
-  }
-}
+  "HTTP_HOST": "localhost",
+  "HTTP_USER_AGENT": "Mozilla\/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko\/20100101 Firefox\/49.0",
+  "HTTP_ACCEPT": "text\/html,application\/xhtml+xml,application\/xml;q=0.9,*\/*;q=0.8",
+  "HTTP_ACCEPT_LANGUAGE": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+  "HTTP_ACCEPT_ENCODING": "gzip, deflate",
+  "HTTP_COOKIE": "Phpstorm-79990a67=eca48fb9-de19-4632-a68b-d72af84c61c2; PHPSESSID=6561etplp6m63sbbgoht4l8143",
+  "HTTP_CONNECTION": "keep-alive",
+  "HTTP_UPGRADE_INSECURE_REQUESTS": "1",
+  "PATH": "C:\\Program Files\\Common Files\\Siemens\\Automation\\Simatic OAM\\bin;C:\\ProgramData\\Oracle\\Java\\javapath;D:\\app\\client\\Anton\\product\\12.1.0\\client_1;D:\\app\\client\\Anton\\product\\12.1.0\\client_1\\bin;C:\\Program Files (x86)\\PC Connectivity Solution\\;C:\\Program Files (x86)\\Intel\\iCLS Client\\;C:\\Program Files\\Intel\\iCLS Client\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\Windows Live\\Shared;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;C:\\Program Files\\Microsoft SQL Server\\110\\Tools\\Binn\\;C:\\wamp\\bin\\php\\php5.5.12\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\Git\\cmd;C:\\Program Files (x86)\\QuickTime\\QTSystem\\;C:\\wamp64\\bin\\php\\php5.6.16;C:\\Program Files (x86)\\MySQL\\MySQL Fabric 1.5 & MySQL Utilities 1.5\\;C:\\Program Files (x86)\\MySQL\\MySQL Fabric 1.5 & MySQL Utilities 1.5\\Doctrine extensions for PHP\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\PuTTY\\;",
+  "SystemRoot": "C:\\WINDOWS",
+  "COMSPEC": "C:\\WINDOWS\\system32\\cmd.exe",
+  "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC",
+  "WINDIR": "C:\\WINDOWS",
+  "SERVER_SIGNATURE": "
+  Apache
+  \
+  /
+  2.4
+  .
+  17
+  (
+  Win64
+  )
+  PHP
+  \
+  /
+  7.0
+  .
+  0
+  Server
+  at
+  localhost
+  Port
+  80
+  <
+  \
+  /
+  address
+  >
+  \
+  n
+  ","
+  SERVER_SOFTWARE
+  ":"
+  Apache
+  \
+  /
+  2.4
+  .
+  17
+  (
+  Win64
+  )
+  PHP
+  \
+  /
+  7.0
+  .
+  0
+  ","
+  SERVER_NAME
+  ":"
+  localhost
+  ","
+  SERVER_ADDR
+  ":":
+  :
+  1
+  ","
+  SERVER_PORT
+  ":"
+  80
+  ","
+  REMOTE_ADDR
+  ":":
+  :
+  1
+  ","
+  DOCUMENT_ROOT
+  ":"
+  C:
+  \
+  /
+  wamp64
+  \
+  /
+  www
+  \
+  /
+  ","
+  REQUEST_SCHEME
+  ":"
+  http
+  ","
+  CONTEXT_PREFIX
+  ":"
+  \
+  /
+  dip
+  ","
+  CONTEXT_DOCUMENT_ROOT
+  ":"
+  D:
+  \
+  /
+  prod
+  \
+  /
+  web
+  \
+  /
+  ","
+  SERVER_ADMIN
+  ":"
+  admin
+  @
+  example
+  .
+  com
+  ","
+  SCRIPT_FILENAME
+  ":"
+  D:
+  \
+  /
+  prod
+  \
+  /
+  web
+  \
+  /
+  utils
+  .
+  php
+  ","
+  REMOTE_PORT
+  ":"
+  7515
+  ","
+  GATEWAY_INTERFACE
+  ":"
+  CGI
+  \
+  /
+  1.1
+  ","
+  SERVER_PROTOCOL
+  ":"
+  HTTP
+  \
+  /
+  1.1
+  ","
+  REQUEST_METHOD
+  ":"
+  GET
+  ","
+  QUERY_STRING
+  ":"
+  info
+  ","
+  REQUEST_URI
+  ":"
+  \
+  /
+  dip
+  \
+  /
+  utils
+  .
+  php
+  ?
+  info
+  ","
+  SCRIPT_NAME
+  ":"
+  \
+  /
+  dip
+  \
+  /
+  utils
+  .
+  php
+  ","
+  PHP_SELF
+  ":"
+  \
+  /
+  dip
+  \
+  /
+  utils
+  .
+  php
+  ","
+  REQUEST_TIME_FLOAT
+  ":1476859584.391,"
+  REQUEST_TIME
+  ":1476859584}

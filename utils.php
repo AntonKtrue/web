@@ -77,6 +77,10 @@ if(isset($_POST['mainpromo'])) {
 	echo json_encode($promoaction);
 }
 
+if(isset($_GET['info'])) {
+    echo json_encode($_SERVER);
+}
+
 function jsError($message) {
 	$arr = array("error"=>$message);
 	return json_encode($arr);
