@@ -49,9 +49,11 @@ function generateMainPromoScreen() {   // Генерация начальной 
             $(button).text("Посмотреть +")
                 .addClass("bt-promo-view")
                 .on('click', function () {
-                    prepareFlat();
+                    changeOverlay("on");
                     prodcutFlat = generateProductFlat(msg.product);
+                    prepareFlat();
                     $(prodcutFlat).appendTo($("#content"));
+                    changeOverlay("off");
                     $('#fotomodaltrigger').leanModal({top: 300, overlay: 0.45});
                     $.ajax({
                         type: 'POST',
@@ -121,9 +123,11 @@ function generateProductDiv(product) {
     $(productBox).addClass("product-box").css('cursor','pointer')
         .addClass("white-bg")
         .on('click', function() {
-            prepareFlat();
+            changeOverlay("on");
             prodcutFlat = generateProductFlat(product);
+            prepareFlat();
             $(prodcutFlat).appendTo($("#content"));
+            changeOverlay("off")
             $('#fotomodaltrigger').leanModal({top: 300, overlay: 0.45});
             $.ajax({
                 type: 'POST',

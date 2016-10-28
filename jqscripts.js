@@ -239,9 +239,18 @@ function generateCartMenu() {
     $(cartBar).addClass('cart-bar-area')
         .addClass('dark-blue-bg white-text').addClass('fl-row fl-vcenter fl-hcenter')
         .css('cursor','pointer').on('click', function() {
+            changeOverlay("on");
+            cartData = $.ajax({
+                url: 'cart.php',
+                async: false,
+                method: 'POST',
+                dataType: 'json',
+                data: "opencart"
+            }).responseJSON;
             prepareFlat();
             var cartFlat = generateCartFlat(cartData);
             $(cartFlat).appendTo($("#content"));
+            changeOverlay("off");
     });
     cartBarInfoBox = document.createElement('div');
     $(cartBarInfoBox).appendTo(cartBar).addClass('fl-col');
@@ -312,11 +321,6 @@ function generateCategories() { //TODO доделать прокрутку
             }
         }
 
-
-
-        //if(((blockWidth-800)+currentMargin+130<130) && relX > 0 && relX < 40) {$(catLine).animate({'margin-left': currentMargin+130 + 'px'},500);}
-        //if(((blockWidth-800)+currentMargin+130>130) && relX > 760 && relX < 800) {$(catLine).animate({'margin-left': currentMargin-130 + 'px'},500);}
-        //if(((blockWidth-800)+currentMargin+130>130) && relX > 760 && relX < 800) {$(catLine).animate({'margin-left': currentMargin-130 + 'px'},500);}
     });
 
     var catCount = Object.keys(categoriesData).length;
@@ -338,26 +342,6 @@ function generateCategories() { //TODO доделать прокрутку
                      }).appendTo(catLine);
     });
 
-
-    // $.each(categoriesData, function(i, item) {
-    //     var catElement = document.createElement('div');
-    //     var catElementText = document.createElement('span');
-    //     $(catElementText).text(item.name).css('text-align','center').appendTo($(catElement));
-    //     $(catElement).addClass("cat-element-area")
-    //         .addClass("fl-row")
-    //         .addClass("fl-vcenter")
-    //         .addClass("fl-hcenter")
-    //         .addClass("uppercase")
-    //         .css("font-size", "14px")
-    //         .css('cursor', 'pointer')
-    //         .on('click', function () {
-    //             //alert("category " + categoriesData[item.id].name + " clicked");
-    //             prepareFlat();
-    //             categoryFlat = generateCategoryFlat(i);
-    //             $(categoryFlat).appendTo($("#content"));
-    //         });
-    //     $(catElement).appendTo($(categoriesLine));
-    // });
     return container;
 }
 function generateCartFlat() {
@@ -554,30 +538,32 @@ function generateCartFlat() {
 
     if(cartData.productsCount) {
         var makeOrderButton = document.createElement('a');
-        $(makeOrderButton).addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter').css('font-size','20px').css('font-weight','bold')
+        $(makeOrderButton).addClass('fl-row').addClass('fl-vcenter').addClass('fl-hcenter').css('font-size', '20px').css('font-weight', 'bold')
             .height('49px').width('292px').addClass('magenta-bg')
-            .css('color','white').text('Оформить заказ').appendTo(rightBlock)
-            .attr('href','#').css('text-decoration','none').on('click',function(){
-            prepareFlat();
-            var checkoutFlat = generateCheckoutFlat();
-            $(checkoutFlat).appendTo($('#content'));
+            .css('color', 'white').text('Оформить заказ').appendTo(rightBlock)
+            .attr('href', '#').css('text-decoration', 'none')
+            .on('click', function () {
+                changeOverlay("on");
+                var checkoutFlat = generateCheckoutFlat();
+                prepareFlat();
+                $(checkoutFlat).appendTo($('#content'));
 
-            var deliveryContent = generateDeliveryContent();
-            $(deliveryContent).appendTo($('#deliveryDataPanel'));
-            var acceptContent = generateAcceptContent();
-            $(acceptContent).appendTo($('#acceptDataPanel'))
+                var deliveryContent = generateDeliveryContent();
+                $(deliveryContent).appendTo($('#deliveryDataPanel'));
+                var acceptContent = generateAcceptContent();
+                $(acceptContent).appendTo($('#acceptDataPanel'))
 
 
-            if(userData == null) {
-                var accPersContent = generateAccPersContent();
-                $(accPersContent).appendTo($('#accPersDataPanel'));
-                $('#accPersData').addClass("active");
-                $('#accPersDataPanel').addClass("show");
-            } else {
-                showDeliveryData();
-            }
-
-        });
+                if (userData == null) {
+                    var accPersContent = generateAccPersContent();
+                    $(accPersContent).appendTo($('#accPersDataPanel'));
+                    $('#accPersData').addClass("active");
+                    $('#accPersDataPanel').addClass("show");
+                } else {
+                    showDeliveryData();
+                }
+                changeOverlay("off");
+            });
     }
     var summaBoxText = '<span>Итого:</span>';
     $(summaBoxText).appendTo(summaBox).css('font-size','24px');
@@ -1063,10 +1049,11 @@ function generateProductFlat(product) {
         $(captionBackHref).text("Вернуться в каталог").attr('href','#').addClass('magenta-text')
             .css('font-size','14px').addClass('uppercase')
             .on('click', function() {
-                //alert("goto category " + categoriesData[product.category].name );
-                prepareFlat();
+                changeOverlay("on");
                 categoryFlat = generateCategoryFlat(product.category);
+                prepareFlat();
                 $(categoryFlat).appendTo($("#content"));
+                changeOverlay("off");
             })
             .appendTo($(caption));
 
@@ -1307,9 +1294,11 @@ function generatePromoProductDiv(bgimage, double, alignRight, color, promoProd) 
         .css("color", color)
         .css("cursor","pointer")
         .on('click', function () {
-            prepareFlat();
+            changeOverlay("on");
             prodcutFlat = generateProductFlat(promoProd);
+            prepareFlat();
             $(prodcutFlat).appendTo($("#content"));
+            changeOverlay("off");
             $('#fotomodaltrigger').leanModal({top: 300, overlay: 0.45});
             $.ajax({
                 type: 'POST',
