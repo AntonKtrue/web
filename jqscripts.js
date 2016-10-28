@@ -10,7 +10,8 @@ var cartData;
 var userData;
 var patternEmail = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
 var curImg;
-
+var changeOverlayDiv;
+var ajaxGif;
 
 Number.prototype.formatMoney = function(c, d, t){
     var n = this,
@@ -58,11 +59,11 @@ $(function () {
     $.getScript('utils.js');
     $.getScript('ready-generators.js');
 
-    var changeOverlay = getDiv('content-change-overlay');
-    var ajaxGif = getDiv('ajax-gif');
-    $(changeOverlay).appendTo('body');
-    $(ajaxGif).center().appendTo(changeOverlay);
-
+     changeOverlayDiv = getDiv('content-change-overlay');
+     ajaxGif = getDiv('ajax-gif');
+    $(changeOverlayDiv).appendTo('body');
+    $(ajaxGif).center().appendTo(changeOverlayDiv);
+    changeOverlay("on");
 
 
     //fetch required data
@@ -87,14 +88,14 @@ $(function () {
     showRegistration();
     showAccount();
     showZoomFoto();
-    $(changeOverlay).css("display","none");
+    changeOverlay("off")
 });
 
 function changeOverlay(func) {
     switch (func) {
-        case "on":  $(changeOverlay).css("display","fixed");
+        case "on":  $(changeOverlayDiv).show();
             break;
-        case "off":  $(changeOverlay).css("display","none");
+        case "off":  $(changeOverlayDiv).hide();
             break;
     }
 }
