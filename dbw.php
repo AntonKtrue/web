@@ -221,11 +221,17 @@ function update_product($update) {
 }
 
 function systemlog($data) {
+
     global $conn;
+    $remote_addr = $_SERVER['REMOTE_ADDR'];
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
     $stmt = $conn->prepare("INSERT INTO systemlog(time, category, details) VALUES(CURRENT_TIMESTAMP(),?,?)");
     $category = $data['category'];
+    $data['details']['remote_addr'] = $remote_addr;
+    $data['details']['user_agent'] = $user_agent;
     $details = json_encode($data['details']);
     $stmt->bind_param("ss", $category, $details);
+    error_log($details);
     $stmt->execute();
     $stmt->close();
 }

@@ -63,19 +63,21 @@ if(isset($_POST['getAccount'])) {
         } else {
             echo json_encode(array("result"=>"error"));
         }
-    $log = array(
-            "category"=>"account",
-            "details"=>array(
-                "session"=>session_id(),
-                "user"=>$user==session_id() ? "guest" : $user,
-                "operation"=>array(
-                    "action"=>"getAccount",
-                    "result"=>$result
-                )
-            )
-        );
-        systemlog($log);
+
     }
+    $log = array(
+        "category"=>"account",
+        "details"=>array(
+            "session"=>session_id(),
+            "user"=>$user==null ? "guest" : $user,
+            "operation"=>array(
+                "action"=>"getAccount",
+                "result"=>$result
+            )
+        )
+    );
+    systemlog($log);
+
     return;
 }
 
@@ -172,12 +174,9 @@ function doLogin($login) {
     $res = checkUser($login);
     if($user_id = $res->id) {
         if(isset($_SESSION["cart"]["productsCount"]) && $_SESSION["cart"]["productsCount"] > 0) {
-            error_log("session product count: " . $_SESSION["cart"]["productsCount"]);
             $cart_id = createOpenCart($user_id);
-            error_log("new cart id:" . $cart_id);
             $s = $c->prepare("INSERT INTO order_details VALUES (?,?,?,?,?)");
             foreach ($_SESSION["cart"]["details"] as $key => $iterator) {
-
                 foreach($iterator as $key2=>$value) {
                     $s->bind_param("iiids",
                         $cart_id,
@@ -188,7 +187,6 @@ function doLogin($login) {
                     $s->execute();
                     error_log("add prodcut: cartId " . $cart_id . " key " . $key . " count " . $value->product_count . " cost " . $value->product_cost . " variant " . $key2 );
                 }
-
             }
             $s->close();
         } else {
@@ -222,7 +220,6 @@ function doLogin($login) {
         );
         systemlog($log);
         if($res->accessLevel==1) $_SESSION["admin"]=true;
-        error_log("exit_cart_id:" . $cart_id);
         updateHash($login, $hash);
     } else {
         $response['error'][]="user not found or bad password";
