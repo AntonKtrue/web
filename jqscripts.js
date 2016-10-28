@@ -11,6 +11,7 @@ var userData;
 var patternEmail = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
 var curImg;
 
+
 Number.prototype.formatMoney = function(c, d, t){
     var n = this,
         c = isNaN(c = Math.abs(c)) ? 2 : c,
@@ -45,11 +46,23 @@ images = {
     }
 }
 
+$.fn.center = function () {
+    this.css({"position": "absolute"});
+    this.css({"top": (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop() + "px"});
+    this.css({"left": (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft() + "px"});
+    return this;
+}
 
 $(function () {
     //login
     $.getScript('utils.js');
     $.getScript('ready-generators.js');
+
+    var changeOverlay = getDiv('content-change-overlay');
+    var ajaxGif = getDiv('ajax-gif');
+    $(changeOverlay).appendTo('body');
+    $(ajaxGif).center().appendTo(changeOverlay);
+
 
 
     //fetch required data
@@ -74,8 +87,17 @@ $(function () {
     showRegistration();
     showAccount();
     showZoomFoto();
-
+    $(changeOverlay).css("display","none");
 });
+
+function changeOverlay(func) {
+    switch (func) {
+        case "on":  $(changeOverlay).css("display","fixed");
+            break;
+        case "off":  $(changeOverlay).css("display","none");
+            break;
+    }
+}
 
 function show_usermenu() {
     $('#signbar').empty();
@@ -307,9 +329,11 @@ function generateCategories() { //TODO доделать прокрутку
         $(catElementText).text(item.name).appendTo(catElementBox);
         $(catElementBox).on('click', function () {
                         //alert("category " + categoriesData[item.id].name + " clicked");
-                         prepareFlat();
-                         categoryFlat = generateCategoryFlat(i);
-                         $(categoryFlat).appendTo($("#content"));
+                            changeOverlay("on");
+                            categoryFlat = generateCategoryFlat(i);
+                            prepareFlat();
+                           $(categoryFlat).appendTo($("#content"));
+                            changeOverlay("off");
                      }).appendTo(catLine);
     });
 

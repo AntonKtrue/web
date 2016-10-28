@@ -824,3 +824,23 @@ input[type="radio"]:checked + label {
 	font-weight: lighter;
 	font-size: 18px;
 }
+
+.content-change-overlay {
+	position: fixed;
+	left: 0;
+	top: 0;
+	background: #fff;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+	z-index: 999;
+	width: 100%;
+	height: 100%;
+
+}
+
+.ajax-gif {
+	background-image: url("../img/ajaxloader.gif");
+	width: 128px;
+	height: 128px;
+	position: fixed;
+}
