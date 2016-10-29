@@ -3,7 +3,7 @@ session_start();
 if(!isset($_SESSION["admin"])) die();
 ?>
 <!DOCTYPE html>
-<html>
+<html ng-app="adm">
 <head>
 	<meta charset="UTF-8">
 	<title>SUPER SHOP</title>
@@ -14,6 +14,7 @@ if(!isset($_SESSION["admin"])) die();
 	<script type="text/javascript" src="../jquery.leanModal.min.js"></script>
 	<script type="text/javascript" src="../jquery-ui.js"></script>
 	<script type="text/javascript" src="jqscripts.js"></script>
+
 </head>
 <header></header>
 <div id="content"></div>

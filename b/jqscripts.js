@@ -29,10 +29,23 @@ $(function() {
 			});
 });
 
+function getElement(type, classes) {
+	var element = document.createElement(type);
+	if(classes) $(element).addClass(classes);
+	return element;
+}
+
 function getDiv(classes) {
-	var div = document.createElement('div');
-	if(classes) $(div).addClass(classes);
+	var div = getElement('div',classes);
 	return div;
+}
+function getOl(classes) {
+	var ol = getElement('ol',classes);
+	return ol;
+}
+function getLi(classes) {
+	var li = getElement('li',classes);
+	return li;
 }
 
 function prepareData(prData) {
@@ -87,30 +100,27 @@ function generateMainFrame() {
 				}
 			});
 		});
-
-
-
 	return mainFrameContainer;
 }
 
 function generateMenuItems() {
-	menuItemsContainer = document.createElement('div');
-	$(menuItemsContainer).addClass('fl-col');
-	ordersItem = generateMenuItem("заказы", "orders", "../img/b_orders.png",
+	var menuItemsContainer = getDiv('fl-col');
+
+	var ordersItem = generateMenuItem("заказы", "orders", "../img/b_orders.png",
 			"../img/b_orders_a.png");
 	$(ordersItem).appendTo($(menuItemsContainer));
-	usersItem = generateMenuItem("Пользователи", "users", "../img/b_users.png",
+	var usersItem = generateMenuItem("Пользователи", "users", "../img/b_users.png",
 			"../img/b_users_a.png");
 	$(usersItem).appendTo($(menuItemsContainer));
-	productsItem = generateMenuItem("товары", "products",
+	var productsItem = generateMenuItem("товары", "products",
 			"../img/b_products.png", "../img/b_products_a.png");
 	$(productsItem).appendTo($(menuItemsContainer));
-	categoriesItem = generateMenuItem("категории", "categories",
+	var categoriesItem = generateMenuItem("категории", "categories",
 			"../img/b_categories.png", "../img/b_categories_a.png");
 	$(categoriesItem).appendTo($(menuItemsContainer));
-
-
-
+	var syslogItem = generateMenuItem("журнал событий","systemlog",
+		"../img/b_syslog.png","../img/b_syslog_a.png");
+	$(syslogItem).appendTo(menuItemsContainer);
 	return menuItemsContainer;
 }
 
@@ -701,7 +711,8 @@ function generateLabelField(text, name) {
 
 function buildProdTable(msg) {
 	table = document.createElement('div');
-	$(table).addClass('fl-col').addClass('white-bg').addClass('table').css('order', '2');
+	$(table).addClass('fl-col').addClass('white-bg').addClass('table').css('order', '2')
+		;
 	tableCaption = document.createElement('div');
 	$(tableCaption).addClass('col-caption').appendTo($(table));
 	col1 = document.createElement('div');
@@ -1185,6 +1196,123 @@ function generateVarsBlock(key, value, productId) {
 		});
 }
 
+function generateTableHead(headData) {
+	var container = getDiv('table-row');
+	$.each(headData, function (i, item) {
+		var col = getDiv();
+		$(col).text(item.text).appendTo(container);
+		if(item.size != null) {
+			$(col).width(item.size);
+		}
+	});
+	return container;
+}
+
+function buildSystemLog(msg) {
+	var table = getDiv('syslog');
+
+	var sysLogData = $.ajax({
+		async: false,
+		url: 'content.php',
+		dataType: 'json',
+		data: 'systemlog',
+		method: 'POST'
+	}).responseJSON;
+
+	// var headData = [
+	// 	{
+	// 		text: "Время события"
+	// 	},
+	// 	{
+	// 		text: "Пользователь"
+	// 	},
+	// 	{
+	// 		text: "Тип операции"
+	// 	},
+	// 	{
+	// 		text: "Детали события"
+	// 	}
+	// ];
+	// var headRow = generateTableHead(headData);
+	// $(headRow).appendTo(table);
+	$.each(sysLogData, function(i, item) {
+		var row = getDiv('fl-col');
+		var rowUp = getDiv('fl-row');
+		var rowDown = getDiv('fl-row');
+		$(rowUp).appendTo(row);
+		$(rowDown).appendTo(row);
+		var time = getDiv();
+		$(time).text(item.time).appendTo(rowUp);
+		var user = getDiv();
+		$(user).text(item.details.user).appendTo(rowUp);
+
+		var category = getDiv();
+		switch (item.category) {
+			case 'account': $(category).text('Операция с учетной записью');
+				break;
+			case 'cart': $(category).text('Операция с корзиной');
+				break;
+			case 'login': $(category).text('Операция входа/выхода');
+				break;
+		}
+		$(category).appendTo(rowUp);
+		var details = getOl('tree');
+		var detailsRootNode = getLi();
+		var label = getElement('label');
+		$(label).attr('for','rootElement'+i).appendTo(detailsRootNode).text("Детали события");
+		var input = getElement('input');
+		$(input).attr({'type':'checkbox','id':'subElement'+i}).appendTo(detailsRootNode);
+		$(detailsRootNode).appendTo(details);
+		$(details).appendTo(rowDown);
+
+		var treeView = generateTreeView(item.details);
+		$(treeView).appendTo(detailsRootNode);
+		$(row).appendTo(table);
+
+	});
+
+	return table;
+}
+
+function generateTreeView(jsonData) {
+	var container = getOl('tree-view');
+	if(Array.isArray(jsonData) || Object.keys(jsonData).length>0 ) {
+		$.each(jsonData, function (key, val) {
+			var node = generateTreeNode(key, val);
+			$(node).appendTo(container);
+		});
+	} else {
+		var string = getDiv();
+		$(string).text(jsonData).appendTo(container);
+	}
+	return container;
+}
+
+function generateTreeNode(key, val) {
+	var container;
+	if(val == null || $.type(val) === "string") {
+		var container = getLi('file');
+		$(container).text(key + ": "  + (val==null ? "" : val));
+	} else if (Array.isArray(val) || Object.keys(val).length>0) {
+		var container = getLi('group-node');
+		var label = getElement('label');
+		$(label).attr('for','subElement'+key).appendTo(container).text(key);
+		var input = getElement('input');
+		$(input).attr({'type':'checkbox','id':'subElement'+key}).appendTo(container);
+	// <label for="subfolder1">Subfolder 1</label>
+	// 	<input type="checkbox" id="subfolder1" />
+		var childs = getOl();
+		$(childs).appendTo(container);
+		$.each(val, function (key, val) {
+			var node = generateTreeNode(key, val);
+			$(node).appendTo(childs);
+		});
+	}
+	return container;
+}
+
+
+
 function buildCatTable(msg) {
 
 	table = document.createElement('div');
@@ -1439,25 +1567,29 @@ function getContent(choise) {
 		data : choise,
 		success : function(msg) {
 			switch (choise) {
-			case 'orders':
-				//TODO buildOrdersData - after orders
-				containerTable = buildOrdersData(msg);
-				$(containerTable).appendTo($(container));
-				break;
-			case 'users':
-				containerTable = buildUsersTable(msg);
-				$(containerTable).appendTo($(container));
-				break;
-			case 'products':
-				containerTable = buildProdTable(msg);
-				$(containerTable).appendTo($(container));
-				break;
-			case 'categories':
-				containerTable = buildCatTable(msg);
-				addCategory = getAddCategoryField();				
-				$(containerTable).appendTo($(container));
-				$(addCategory).appendTo($(container));
-				break;
+				case 'orders':
+					//TODO buildOrdersData - after orders
+					containerTable = buildOrdersData(msg);
+					$(containerTable).appendTo($(container));
+					break;
+				case 'users':
+					containerTable = buildUsersTable(msg);
+					$(containerTable).appendTo($(container));
+					break;
+				case 'products':
+					containerTable = buildProdTable(msg);
+					$(containerTable).appendTo($(container));
+					break;
+				case 'categories':
+					containerTable = buildCatTable(msg);
+					addCategory = getAddCategoryField();
+					$(containerTable).appendTo($(container));
+					$(addCategory).appendTo($(container));
+					break;
+				case 'systemlog':
+					containerTable = buildSystemLog(msg);
+					$(containerTable).appendTo(container);
+					break;
 			}
 		}
 	});	
@@ -1465,8 +1597,6 @@ function getContent(choise) {
 }
 
 
-
-//CRUD ТОВАРОВ!!!!!!!!!!!!
 
 
 

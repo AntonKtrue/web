@@ -123,6 +123,14 @@ if(isset($_POST['getUser'])) {
     }
 }
 
+if(isset($_POST['systemlog'])) {
+    $query = $conn->query("SELECT * FROM systemlog ORDER BY time DESC");
+    while($row = $query->fetch_object()) {
+        $row->details = json_decode($row->details);
+        $out[] = $row;
+    }
+}
+
 echo json_encode($out);
 
 
