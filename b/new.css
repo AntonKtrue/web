@@ -892,8 +892,8 @@ input[type="radio"]:checked + label {
 
 ol.tree
 {
-	padding: 0 0 0 30px;
-	width: 300px;
+	padding: 0 0 30px;
+
 }
 li
 {
