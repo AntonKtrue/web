@@ -1,6 +1,9 @@
 <?php
 session_start();
-if(!isset($_SESSION["admin"])) die();
+if(!isset($_SESSION["admin"])) {
+	header("Location: ../");
+	die();
+};
 ?>
 <!DOCTYPE html>
 <html ng-app="adm">
